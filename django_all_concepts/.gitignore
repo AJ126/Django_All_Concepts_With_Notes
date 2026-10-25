@@ -1,0 +1,11 @@
+
+# Ignore Python cache folders
+__pycache__/
+**/__pycache__/
+
+# Ignore virtual environments
+akash/
+.akash/
+
+# Ignore environment variables
+.env
