@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+{% extends "base.html" %}
+{%load static%}
+<html>
+    <body>
+        {% block body%}
+            <div style="top:10px;">
+                <h1 style="color:white;">Advance template data</h1>
+                {%if data%}
+                    <table class="table table-striped" style="color:white;">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Data</th>
+                                <th scope="col">Details</th>
+                                <th scope="col">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for value in data %}
+                            <tr>
+                                <th scope="row">{{forloop.counter}}</th>
+                                <th scope="row">{{value.name | upper}}</th>
+                                <th scope="row">{{value.data}}</th>
+                                <th scope="row">{{value.details | capfirst}}</th>
+                                <th scope="row">{{value.date}}</th>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {%else%}
+                <p>data is not available
+                {%endif%}
+            </div>
+        {% endblock body%}
+    </body>
+</html>
