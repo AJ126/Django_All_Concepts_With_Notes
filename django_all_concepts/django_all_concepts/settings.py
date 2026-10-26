@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'app_002_template',
     'app_003_models',
     'app_004_forms',
+    'app_005_modelForms',
 ]
 
 MIDDLEWARE = [
