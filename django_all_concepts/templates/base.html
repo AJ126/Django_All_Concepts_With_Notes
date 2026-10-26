@@ -1,20 +1,67 @@
 <!DOCTYPE html>
-{% load static %}
+{% load static%}
 <html>
     <head>
         <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title></title>
-        <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="{% static 'css/bootstrap.css'%}">
+        <title>Django All Concepts</title>
+        <link href="{%static 'css/bootstrap.css'%}" rel="stylesheet">
+        <link href="{%static 'css/base.css'%}" rel="stylesheet">
         {% block style%}
         {% endblock style%} 
     </head>
     <body>
-        <h1>welcome</h1>
-        {% block body %}
-        {% endblock body%}
-        <script src="{% static 'bootstrap.js' %}"></script>
+        <nav class="navbar navbar-expand-lg fixed-top bg-body-tertiary navbar bg-secondary" data-bs-theme="dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">Django concepts</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="{%url 'home'%}">Home</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                First App
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{%url 'first'%}">Simple</a></li>
+                                <li><a class="dropdown-item" href="{%url 'showdatetime'%}">Current date & time</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Template
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li class="dropdown-item"><b>Simple Template</b></li><hr>
+                                <li><a class="dropdown-item" href="{%url 'firsttemplate'%}">Simple template</a></li>
+                                <li><a class="dropdown-item" href="{%url 'dynamictemplate'%}">Dynamic data</a></li>
+                                <li><a class="dropdown-item" href="{%url 'showing'%}">Image template</a></li><br>
+                                <li class="dropdown-item"><b>Advance Template App</b></li><hr>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Model
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li class="dropdown-item"><b>Simple Model</b></li><hr>
+                                <li><a class="dropdown-item" href="{%url 'showData'%}">Get Model Data</a></li><br>
+                                <li class="dropdown-item"><b>Advance Model</b></li><hr>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav><br><br>
+        <div class="container mt-3">
+            <h1>welcome</h1>
+            {% block body %}
+            {% endblock body%}
+        </div>
+        <script src="{%static 'bootstrap.js'%}"></script>
     </body>
 </html>
