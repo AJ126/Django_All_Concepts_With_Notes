@@ -26,4 +26,5 @@ urlpatterns = [
     path('modelapp/', include('app_003_models.urls')),
     path('formapp/', include('app_004_forms.urls')),
     path('modelformapp/', include('app_005_modelForms.urls')),
+    path('advtemplateapp/', include('app_006_advance_template.urls')),
 ]
