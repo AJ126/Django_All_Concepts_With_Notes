@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+{%extends 'app_007_session/session_base.html'%}
+{%load static%}
+<html>
+    <body>
+        {% block session %}
+        <form action="/sessionapp/showdate">
+            {{form.as_p}}
+            {% csrf_token %}
+            <div class="d-flex" style="gap:10px">
+                <button type="button" class="btn btn-outline-danger">Cancel</button>
+                <input type="submit" class="btn btn-outline-success" value="submit">
+            </div>
+        </form>
+        {% endblock session%}
+    </body>
+</html>

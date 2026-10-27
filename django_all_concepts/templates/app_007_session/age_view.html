@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+{%extends 'app_007_session/session_base.html'%}
+{%load static%}
+<html>
+    <body>
+        {% block session %}
+        <form class="" action="/sessionapp/gfview">
+            <span>Enter Age :</span>
+            <input class="form-control" type="number" name="age" value=""><br>
+            <input class="btn btn-success" type="submit" name="" value="Submit Age">
+        </form>
+        {% endblock session %}
+    </body>
+</html>

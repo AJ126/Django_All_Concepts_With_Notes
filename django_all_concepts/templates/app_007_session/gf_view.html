@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+{%extends 'app_007_session/session_base.html'%}
+{%load static%}
+<html>
+    <body>
+        {% block session %}
+        <form class="" action="/sessionapp/userresult">
+            <span>Enter GirlFriend Name :</span>
+            <input class="form-control" type="text" name="gf" value=""><br>
+            <input class="btn btn-success" type="submit" name="" value="Submit Girl Friend Name">
+        </form>
+        {% endblock session %}
+    </body>
+</html>

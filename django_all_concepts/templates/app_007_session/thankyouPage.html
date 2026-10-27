@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+{%extends 'app_007_session/session_base.html'%}
+{%load static%}
+<html>
+    <body>
+        {% block session %}
+        <h3>Hello {{name}},</h3>
+        <p>Thank you for providing your information!</p>
+        <span>Your information has been stored in cookies. You can find your submitted information below.</span>
+        <ul>
+            <li><b>Name :-</b>{{name}}</li>
+            <li><b>Age :-</b>{{age}}</li>
+            <li><b>Gf Name :-</b>{{gf}}</li>
+        </ul>
+        <p class="text-success">Thank you...</p>
+        {% endblock session %}
+    </body>
+</html>

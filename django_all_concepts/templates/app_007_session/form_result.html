@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+{%extends 'app_007_session/session_base.html'%}
+{%load static%}
+<html>
+    <body>
+        {% block session %}
+        {% if data %}
+        <h4>Hello {{data.name}}</h4>
+        <h4> Current date & time is : {{data.date}}</h4>
+        {% endif %}
+        {% endblock session%}
+    </body>
+</html>

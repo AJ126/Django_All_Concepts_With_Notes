@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+{%extends 'app_007_session/session_base.html'%}
+{%load static%}
+<html>
+    <body>
+        {% block session %}
+        <h3>Check django cookie: </h3>
+        {% if data %}
+            <h4>{{data}}</h4>
+        {% else %}
+            <h4>Cookie is not working</h4>
+        {% endif %}
+        {% endblock session %}
+    </body>
+</html>

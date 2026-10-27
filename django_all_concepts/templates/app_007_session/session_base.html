@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+{%extends 'base.html'%}
+{%load static%}
+<html>
+    <head>
+        {%block style%}
+        {% endblock style%}
+    </head>
+    <body>
+        {% block body %}
+        <h1 class="mt-5">Session App</h1><hr>
+        {%block session%}
+        {%endblock session%}
+        {% endblock body %}
+    </body>
+</html>

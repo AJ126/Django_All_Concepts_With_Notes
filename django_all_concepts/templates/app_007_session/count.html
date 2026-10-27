@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+{%extends 'app_007_session/session_base.html'%}
+{%load static%}
+<html>
+    <body>
+        {% block session %}
+        <span><b>{{data}}</b></span><br>
+        <span>Page count is :- {{count}}</span>
+        {% endblock session %}
+    </body>
+</html>
