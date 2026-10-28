@@ -1,0 +1,42 @@
+{%extends 'base.html'%}
+{%load static%}
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {%block style%}
+    <link href="{%static 'css/register.css'%}" rel="stylesheet">
+    {%endblock%}
+  </head>
+  <body>
+    {%block body%}
+    <div class="aa">
+      <h2>Register New User</h2><hr>
+      <form class="form" method="post">
+        {%csrf_token%}
+        <label class="form-label">First Name</label>
+        <input type="text" class="form-control" name="first_name" placeholder="please enter first name...">
+        <label class="form-label">Enter Last Name</label>
+        <input type="text" class="form-control" name="last_name" placeholder="please enter last name...">
+        <label class="form-label">Enter Username</label>
+        <input type="text" class="form-control" name="username" placeholder="please enter username...">
+        <label class="form-label">Enter Email</label>
+        <input type="email" class="form-control" name="email" placeholder="please enter email...">
+        <label class="form-label">Enter Password</label>
+        <input type="password" class="form-control" name="password" placeholder="please enter password...">
+        <label class="form-label">Enter Password Again</label>
+        <input type="password" class="form-control" name="password1" placeholder="please enter again password...">
+        <ul class="messages">
+          {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+          {% endfor %}
+        </ul>
+        <center>
+        <input type="submit" class="btn btn-outline-success" value="Register" style="color:white;">
+        <a class="btn btn-outline-secondary" href="{%url 'login'%}" style="color:white;">LogIn</a>
+        </center>
+      </form>
+    </div>
+    {%endblock%}
+  </body>
+</html>

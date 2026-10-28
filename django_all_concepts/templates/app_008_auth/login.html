@@ -1,0 +1,33 @@
+{%extends 'base.html'%}
+{% load static %}
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {%block style%}
+        <link href="{%static 'css/login.css'%}" rel="stylesheet">
+    {%endblock style%}
+  </head>
+  <body>
+    {%block body%}
+        <div class="aa">
+            <center>
+                <div class="d-block w-25">
+                    <h4>LogIn</h4>
+                    <hr class="hr">
+                </div>
+                <form class="form" method="post">
+                {%csrf_token%}
+                <input type="text" name="username" placeholder="please enter username.."><br><br>
+                <input type="password" name="password" placeholder="please enter password.."><br><br>
+                <div class="d-flex justify-content-center" style="gap: 10px">
+                    <a href="{url 'home'}" class="btn btn-info">Cancel</a>
+                    <button type="submit" class="btn btn-success">Sign Up</button>
+                    <!--<input type="submit" class="btn btn-success" value="login"> -->
+                </div>
+                </form>
+            </center>
+        </div>
+    {%endblock body%}
+  </body>
+</html>

@@ -1,0 +1,44 @@
+.aa
+{
+	width: 500px;
+	height: 630px;
+	background-color:rgba(0,0,0,0.3);
+	margin: 0 auto;
+	margin-top: 1%;
+	padding-top: 10px;
+	padding-left: 50px;
+	border-radius: 15px;
+	color: white;
+	font-weight: bolder;
+	box-shadow: inset -4px -4px rgba(0,0,0,0.5);
+	font-size: 18px;
+
+}
+.aa h2 {
+  text-align: center;
+}
+.form-control{
+  width: 90%;
+}
+/* Example CSS for message styles */
+.messages {
+  list-style: none;
+  padding: 10px;
+  margin: 10px 0;
+}
+
+.success {
+  color: green;
+}
+
+.info {
+  color: white;
+}
+
+.warning {
+  color: orange;
+}
+
+.error {
+  color: red;
+}
