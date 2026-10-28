@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+{% extends "base.html" %}
+{%load static%}
+<html>
+    <body>
+        {% block body%}
+            <form method="post" enctype="multipart/form-data">
+                {{form.as_p}}
+                {% csrf_token %} 
+                <div class="d-flex" style="gap:10px">
+                    <a href="{%url 'home'%}" class="btn btn-info">Cancel</a>
+                    <input type="submit" class="btn btn-success" value="Upload">
+                </div>
+            </form>
+        {% endblock body%}
+    </body>
+</html>

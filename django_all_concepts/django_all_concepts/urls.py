@@ -16,6 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 from home import views
 
 urlpatterns = [
@@ -32,3 +34,6 @@ urlpatterns = [
     path('authapp/', include('app_008_auth.urls')),
     path('mediaapp/', include('app_009_media.urls')),
 ]
+
+# access uploaded images (when user click on the image path on admin then open )
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

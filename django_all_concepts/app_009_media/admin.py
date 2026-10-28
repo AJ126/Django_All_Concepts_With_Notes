@@ -4,3 +4,7 @@ from app_009_media.models import *
 @admin.register(media)
 class mediaAdmin(admin.ModelAdmin):
     list_display = ['name', 'image']
+
+@admin.register(images)
+class imagesAdmin(admin.ModelAdmin):
+    list_display = ['image', 'date']
