@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'app_005_modelForms',
     'app_006_advance_template',
     'app_007_session',
-    'app_008_auth'
+    'app_008_auth',
+    'app_009_media',
 ]
 
 MIDDLEWARE = [

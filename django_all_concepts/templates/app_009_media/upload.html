@@ -1,0 +1,25 @@
+{%extends 'base.html'%}
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {%block style%}
+    {%endblock style%}
+  </head>
+  <body>
+    {%block body%}
+        <center>
+            <h1 class="text-dark fw-bold">Upload image</h1><hr>
+            <form method="post"  enctype="multipart/form-data">
+                <input type="text" class="form-control" name="name" value="" style="width:500px;"><br>
+                <input type="file" class="form-control" name="image" value="" accept="image/*" style="width:500px;"><br>
+                {%csrf_token%}
+                <div class="d-flex justify-content-center" style="gap:10px">
+                    <a href="{%url 'home'%}" class="btn btn-info">Back</a>
+                    <input type="submit" class="btn btn-light" name="Submit" value="Submit">
+                </div>
+            </form>
+        </center>
+    {%endblock body%}
+  </body>
+</html>

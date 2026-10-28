@@ -30,4 +30,5 @@ urlpatterns = [
     path('advtemplateapp/', include('app_006_advance_template.urls')),
     path('sessionapp/', include('app_007_session.urls')),
     path('authapp/', include('app_008_auth.urls')),
+    path('mediaapp/', include('app_009_media.urls')),
 ]
