@@ -1,0 +1,22 @@
+{%extends 'base.html'%}
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {%block style%}
+    {%endblock style%}
+  </head>
+  <body>
+    {%block body%}
+    <center>
+        <h1 class="text-dark fw-bold">Delete records</h1><br><hr>
+        <p class="text-dark"><b>Are you sure, you want to delete the {{newData.name}}  data ?</b></p>
+        <form method="post">
+            {%csrf_token%}
+            <input type="submit" class="btn btn-danger" value="Delete">
+            <a href="{%url 'listview'%}" class="btn btn-secondary">Cancel</a>
+        </form><hr>
+    </center>
+    {%endblock body%}
+  </body>
+</html>

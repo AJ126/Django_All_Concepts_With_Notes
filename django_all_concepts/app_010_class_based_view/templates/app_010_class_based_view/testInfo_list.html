@@ -1,0 +1,47 @@
+{%extends 'base.html'%}
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {%block style%}
+    {%endblock style%}
+  </head>
+  <body>
+    {%block body%}
+    <div class="d-flex justify-content-between align-items-end mb-3">
+        <h4 class="mt-5">Test Info Data</h4>
+        <a href="{%url 'createview'%}" class="btn btn-success">Create Record</a>
+    </div>
+    {% if testInfo_list %}
+        <table class="table table-striped" style="color:white;">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">address</th>
+                    <th scope="col"> Action </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for value in testInfo_list %}
+                <tr>
+                    <th scope="row">{{forloop.counter}}</th>
+                    <th scope="row">{{value.name | upper}}</th>
+                    <th scope="row">{{value.address}}</th>
+                    <th>
+                        <div class="d-flex justify-content-center" style="gap: 10px;">
+                            <a href="{%url 'detailview' value.id %}" class="btn btn-info">View</a>
+                            <a href="{%url 'updaterecord' value.id %}" class="btn btn-info">Update</a>
+                            <a href="{%url 'deleterecord' value.id %}" class="btn btn-danger">Delete</a>
+                        </div>
+                    </th>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+    <h4> Data not Found</h4>
+    {% endif %}
+    {%endblock body%}
+  </body>
+</html>

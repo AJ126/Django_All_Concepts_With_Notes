@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'app_007_session',
     'app_008_auth',
     'app_009_media',
+    'app_010_class_based_view',
 ]
 
 MIDDLEWARE = [

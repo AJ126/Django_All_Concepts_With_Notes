@@ -1,0 +1,22 @@
+{%extends 'base.html'%}
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {%block style%}
+    {%endblock style%}
+  </head>
+  <body>
+    {%block body%}
+    <h4>Create a test info record</h4>
+    <form method="post">
+        {{form.as_p}}
+        {% csrf_token %} 
+        <div class="d-flex" style="gap:10px">
+            <a href="{%url 'listview'%}" class="btn btn-info">Cancel</a>
+            <input type="submit" class="btn btn-success" value="submit">
+        </div>
+    </form>
+    {%endblock body%}
+  </body>
+</html>

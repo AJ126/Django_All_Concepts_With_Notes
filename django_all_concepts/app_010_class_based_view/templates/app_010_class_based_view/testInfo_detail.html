@@ -1,0 +1,25 @@
+{%extends 'base.html'%}
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {%block style%}
+    {%endblock style%}
+  </head>
+  <body>
+    {%block body%}
+    <h4 class="mt-5">Test Info Data</h4>
+    {% if testInfo %}
+        <h4>Hello {{testInfo.name}}</h4>
+        <p>See the below detials.</p>
+        <ul>
+            <li>Name: {{testInfo.name}}</li>
+            <li>Address: {{testInfo.address}} </li>
+        </ul>
+        <a href="{%url 'listview'%}" class="btn btn-info">Back</a>
+    {% else %}
+    <h4> Data not Found</h4>
+    {% endif %}
+    {%endblock body%}
+  </body>
+</html>

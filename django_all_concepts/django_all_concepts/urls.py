@@ -33,6 +33,7 @@ urlpatterns = [
     path('sessionapp/', include('app_007_session.urls')),
     path('authapp/', include('app_008_auth.urls')),
     path('mediaapp/', include('app_009_media.urls')),
+    path('classApp/', include('app_010_class_based_view.urls'))
 ]
 
 # access uploaded images (when user click on the image path on admin then open )
