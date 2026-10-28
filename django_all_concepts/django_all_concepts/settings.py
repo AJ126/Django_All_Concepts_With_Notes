@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'app_005_modelForms',
     'app_006_advance_template',
     'app_007_session',
+    'app_008_auth'
 ]
 
 MIDDLEWARE = [
@@ -134,3 +135,13 @@ MAILERS = {
         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
     },
 }
+
+# media section
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR/'media'
+
+# redirect to home scrren after login
+LOGIN_REDIRECT_URL='/'
+
+# redirect to home scrren after logout
+LOGOUT_REDIRECT_URL='/'
