@@ -1,0 +1,295 @@
+{%extends 'base.html'%}
+{% load static %}
+<html lang="en">
+  <head>
+    {%block style%}
+    {%endblock style%}
+  </head>
+  <body>
+    {%block body%}
+    <div class="margin-bottom: 10px">
+        <h4>Show all Data</h4>
+        {%if queryData.all%}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">phone</th>
+                        <th scope="col">email</th>
+                        <th scope="col">address</th>
+                        <th scope="col">date</th>
+                        <th scope="col">active</th>
+                        <th scope="col">duration</th>
+                        <th scope="col">url</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for value in queryData.all %}
+                    <tr>
+                        <th scope="row">{{forloop.counter}}</th>
+                        <th scope="row">{{value.name}}</th>
+                        <th scope="row">{{value.phone}}</th>
+                        <th scope="row">{{value.email}}</th>
+                        <th scope="row">{{value.address}}</th>
+                        <th scope="row">{{value.date}}</th>
+                        <th scope="row">{{value.active}}</th>
+                        <th scope="row">{{value.duration}}</th>
+                        <th scope="row">{{value.url}}</th>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+    <hr style="color: green; border: 2px solid green'"/>
+    <div class="margin-bottom: 10px">
+        <h4>Get single record</h4>
+        {%if queryData.singleRecord%}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">phone</th>
+                        <th scope="col">email</th>
+                        <th scope="col">address</th>
+                        <th scope="col">date</th>
+                        <th scope="col">active</th>
+                        <th scope="col">duration</th>
+                        <th scope="col">url</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">1</th>
+                        <th scope="row">{{queryData.singleRecord.name}}</th>
+                        <th scope="row">{{queryData.singleRecord.phone}}</th>
+                        <th scope="row">{{queryData.singleRecord.email}}</th>
+                        <th scope="row">{{queryData.singleRecord.address}}</th>
+                        <th scope="row">{{queryData.singleRecord.date}}</th>
+                        <th scope="row">{{queryData.singleRecord.active}}</th>
+                        <th scope="row">{{queryData.singleRecord.duration}}</th>
+                        <th scope="row">{{queryData.singleRecord.url}}</th>
+                    </tr>
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+    <hr style="color: green; border: 2px solid green'"/>
+    <div class="margin-bottom: 10px">
+        <h4>Get records where the name starts with 'ma' (using name__startswith='ma' to filter the data).</h4>
+        {%if queryData.filterRecords%}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">phone</th>
+                        <th scope="col">email</th>
+                        <th scope="col">address</th>
+                        <th scope="col">date</th>
+                        <th scope="col">active</th>
+                        <th scope="col">duration</th>
+                        <th scope="col">url</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for value in queryData.filterRecords %}
+                    <tr>
+                        <th scope="row">{{forloop.counter}}</th>
+                        <th scope="row">{{value.name}}</th>
+                        <th scope="row">{{value.phone}}</th>
+                        <th scope="row">{{value.email}}</th>
+                        <th scope="row">{{value.address}}</th>
+                        <th scope="row">{{value.date}}</th>
+                        <th scope="row">{{value.active}}</th>
+                        <th scope="row">{{value.duration}}</th>
+                        <th scope="row">{{value.url}}</th>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+    <hr style="color: green; border: 2px solid green'"/>
+    <div class="margin-bottom: 10px">
+        <h4>Get the record with the exact ID 2 (using id__exact=2 to retrieve the data).</h4>
+        {%if queryData.exactRecord%}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">phone</th>
+                        <th scope="col">email</th>
+                        <th scope="col">address</th>
+                        <th scope="col">date</th>
+                        <th scope="col">active</th>
+                        <th scope="col">duration</th>
+                        <th scope="col">url</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">1</th>
+                        <th scope="row">{{queryData.exactRecord.name}}</th>
+                        <th scope="row">{{queryData.exactRecord.phone}}</th>
+                        <th scope="row">{{queryData.exactRecord.email}}</th>
+                        <th scope="row">{{queryData.exactRecord.address}}</th>
+                        <th scope="row">{{queryData.exactRecord.date}}</th>
+                        <th scope="row">{{queryData.exactRecord.active}}</th>
+                        <th scope="row">{{queryData.exactRecord.duration}}</th>
+                        <th scope="row">{{queryData.exactRecord.url}}</th>
+                    </tr>
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+    <hr style="color: green; border: 2px solid green'"/>
+    <div class="margin-bottom: 10px">
+        <h4>Get records where the name contains 'sh' (using name__contains='sh' to filter the data).</h4>
+        {%if queryData.containRecords%}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">phone</th>
+                        <th scope="col">email</th>
+                        <th scope="col">address</th>
+                        <th scope="col">date</th>
+                        <th scope="col">active</th>
+                        <th scope="col">duration</th>
+                        <th scope="col">url</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for value in queryData.containRecords %}
+                    <tr>
+                        <th scope="row">{{forloop.counter}}</th>
+                        <th scope="row">{{value.name}}</th>
+                        <th scope="row">{{value.phone}}</th>
+                        <th scope="row">{{value.email}}</th>
+                        <th scope="row">{{value.address}}</th>
+                        <th scope="row">{{value.date}}</th>
+                        <th scope="row">{{value.active}}</th>
+                        <th scope="row">{{value.duration}}</th>
+                        <th scope="row">{{value.url}}</th>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+    <hr style="color: green; border: 2px solid green'"/>
+    <div class="margin-bottom: 10px">
+        <h4>Get records with IDs 1, 2, or 3 (using id__in=[1, 2, 3] to filter the data).</h4>
+        {%if queryData.filter1%}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">phone</th>
+                        <th scope="col">email</th>
+                        <th scope="col">address</th>
+                        <th scope="col">date</th>
+                        <th scope="col">active</th>
+                        <th scope="col">duration</th>
+                        <th scope="col">url</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for value in queryData.filter1 %}
+                    <tr>
+                        <th scope="row">{{forloop.counter}}</th>
+                        <th scope="row">{{value.name}}</th>
+                        <th scope="row">{{value.phone}}</th>
+                        <th scope="row">{{value.email}}</th>
+                        <th scope="row">{{value.address}}</th>
+                        <th scope="row">{{value.date}}</th>
+                        <th scope="row">{{value.active}}</th>
+                        <th scope="row">{{value.duration}}</th>
+                        <th scope="row">{{value.url}}</th>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+    <hr style="color: green; border: 2px solid green'"/>
+    <div class="margin-bottom: 10px">
+        <h4>Get records where the name starts with 'sh' or the ID is 4 (using Q(name__startswith='sh') | Q(id=4) to filter the data).</h4>
+        {%if queryData.getCombineQueryData%}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">phone</th>
+                        <th scope="col">email</th>
+                        <th scope="col">address</th>
+                        <th scope="col">date</th>
+                        <th scope="col">active</th>
+                        <th scope="col">duration</th>
+                        <th scope="col">url</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for value in queryData.getCombineQueryData %}
+                    <tr>
+                        <th scope="row">{{forloop.counter}}</th>
+                        <th scope="row">{{value.name}}</th>
+                        <th scope="row">{{value.phone}}</th>
+                        <th scope="row">{{value.email}}</th>
+                        <th scope="row">{{value.address}}</th>
+                        <th scope="row">{{value.date}}</th>
+                        <th scope="row">{{value.active}}</th>
+                        <th scope="row">{{value.duration}}</th>
+                        <th scope="row">{{value.url}}</th>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+    <hr style="color: green; border: 2px solid green'"/>
+    <div class="margin-bottom: 10px">
+        <h4>Get records where the name starts with 'sh' and the ID is 5 (using Q(name__startswith='sh') & Q(id=4) to filter the data).</h4>
+        {%if queryData.getDataWithAnd%}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">phone</th>
+                        <th scope="col">email</th>
+                        <th scope="col">address</th>
+                        <th scope="col">date</th>
+                        <th scope="col">active</th>
+                        <th scope="col">duration</th>
+                        <th scope="col">url</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for value in queryData.getDataWithAnd %}
+                    <tr>
+                        <th scope="row">{{forloop.counter}}</th>
+                        <th scope="row">{{value.name}}</th>
+                        <th scope="row">{{value.phone}}</th>
+                        <th scope="row">{{value.email}}</th>
+                        <th scope="row">{{value.address}}</th>
+                        <th scope="row">{{value.date}}</th>
+                        <th scope="row">{{value.active}}</th>
+                        <th scope="row">{{value.duration}}</th>
+                        <th scope="row">{{value.url}}</th>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+    {%endblock body%}
+  </body>
+</html>
