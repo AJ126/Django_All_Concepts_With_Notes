@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'app_008_auth',
     'app_009_media',
     'app_010_class_based_view',
+    'app_011_function_based_curd',
 ]
 
 MIDDLEWARE = [

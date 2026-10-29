@@ -1,0 +1,164 @@
+
+/* Main customer card */
+.customer-card {
+    width: 20%;
+    max-width: 30%;
+    padding: 25px 20px 15px;
+    border: none;
+    border-radius: 20px;
+    background: #ffffff;
+    text-align: center;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+}
+
+/* Hover animation */
+.customer-card:hover {
+    transform: translateY(-7px);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.14);
+}
+
+/* Image wrapper */
+.customer-image-wrapper {
+    position: relative;
+    width: 110px;
+    height: 110px;
+    margin: 0 auto 15px;
+    padding: 5px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4776e6, #8e54e9);
+}
+
+/* Customer image */
+.customer-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #ffffff;
+}
+
+/* Status indicator */
+.customer-status-active {
+    position: absolute;
+    right: 5px;
+    bottom: 7px;
+    width: 17px;
+    height: 17px;
+    border: 3px solid #ffffff;
+    border-radius: 50%;
+    background-color: #22c55e;
+}
+
+.customer-status-inactive {
+    position: absolute;
+    right: 5px;
+    bottom: 7px;
+    width: 17px;
+    height: 17px;
+    border: 3px solid #ffffff;
+    border-radius: 50%;
+    background-color: #6f7471;
+}
+
+/* Card content */
+.customer-body {
+    padding: 5px 0 0;
+}
+
+/* Customer ID badge */
+.customer-id {
+    display: inline-block;
+    padding: 5px 12px;
+    margin-bottom: 10px;
+    border-radius: 20px;
+    background: #eef2ff;
+    color: #4f46e5;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+}
+
+/* Customer name */
+.customer-name {
+    margin-bottom: 8px;
+    color: #1e293b;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+/* Description */
+.customer-description {
+    margin-bottom: 15px;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.7;
+    /* Show only 2 lines */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* Keep all cards aligned */
+    height: calc(13px * 1.7 * 2);
+    /* Smooth transition */
+    cursor: pointer;
+}
+
+/* Divider */
+.customer-divider {
+    height: 1px;
+    margin: 15px 0;
+    background: #e9edf3;
+}
+
+/* Buttons container */
+.customer-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* Common button styles */
+.customer-actions .btn {
+    flex: 1;
+    padding: 9px 10px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+/* Update button */
+.btn-update {
+    color: #ffffff;
+    background: linear-gradient(135deg, #4776e6, #6c63ff);
+    border: none;
+}
+
+.btn-update:hover {
+    color: #ffffff;
+    background: #354fc5;
+    transform: scale(1.03);
+}
+
+/* Delete button */
+.btn-delete {
+    color: #dc3545;
+    background: #fff0f1;
+    border: 1px solid #ffe0e3;
+}
+
+.btn-delete:hover {
+    color: #ffffff;
+    background: #dc3545;
+    border-color: #dc3545;
+    transform: scale(1.03);
+}
+
+/* Responsive sizing */
+@media (max-width: 576px) {
+    .customer-card {
+        max-width: 100%;
+    }
+}

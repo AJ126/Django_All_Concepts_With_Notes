@@ -1,0 +1,67 @@
+{%extends 'base.html'%}
+{% load static %}
+<html lang="en">
+  <head>
+    {%block style%}
+    <link rel="stylesheet" href="{%static 'css/customer_form.css'%}"
+    {%endblock style%}
+  </head>
+  <body>
+    {%block body%}
+        <div class="customer-form-page">
+            <div class="customer-form-card">
+                <!-- Form Header -->
+                <div class="form-header">
+                <h3>Add New Customer</h3>
+                <p>Enter the customer information below</p>
+            </div>
+            <!-- Form Body -->
+            <div class="form-content">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <!-- Customer Name -->
+                    <div class="mb-4">
+                        <label for="name" class="form-label">Customer Name</label>
+                        <input type="text" class="form-control custom-input" id="name" placeholder="Enter customer name" name="name" value="{{data.name}}" required>
+                    </div>
+                    <!-- Customer ID -->
+                    <div class="mb-4">
+                        <label for="customerId" class="form-label">Customer ID</label>
+                        <input type="number" class="form-control custom-input" id="customerId" placeholder="Enter customer ID" name="customerId" value="{{data.customerId}}" required>
+                    </div>
+                    <!-- Customer Details -->
+                    <div class="mb-4">
+                        <label for="details" class="form-label">Customer Details</label>
+                        <textarea class="form-control custom-input" id="details" placeholder="Enter customer details" name="details" rows="3" required>{{data.details}}</textarea>
+                    </div>
+                    <!--Customer status-->
+                    <div class="d-flex mb-4">
+                        <input class="status-switch" type="checkbox" role="switch" name="status" id="status" {% if data.status %}checked{% endif %}>
+                        <div class="status-text">
+                            <span class="status-title">Customer Status</span>
+                            <p class="status-description">Enable or disable this customer</p>
+                        </div>
+                    </div>
+
+                    <!-- Customer Image -->
+                    <div class="mb-4">
+                        <label for="image" class="form-label">Customer Profile Image</label>
+                        <div class="image-upload-box">
+                            <i class="bi bi-cloud-arrow-up upload-icon"></i>
+                            <p class="upload-title">Choose a customer image</p>
+                            <p class="upload-subtitle">JPG, PNG or WEBP</p>
+                            <input type="file" class="form-control custom-input" id="image" name="image" accept="image/*" {% if data.profilepic %}disabled{% endif %}>
+                        </div>
+                    </div>
+                    <!-- Action Buttons -->
+                    <div class="form-actions">
+                        <a href="{%url 'showcustomers'%}" class="btn btn-cancel">Cancel</a>
+                        <button type="submit" class="btn btn-submit"><i class="bi bi-person-check-fill me-2"></i>Save Customer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {%endblock body%}
+  </body>
+</html>
