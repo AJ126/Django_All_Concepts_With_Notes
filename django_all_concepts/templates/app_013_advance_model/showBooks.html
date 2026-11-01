@@ -1,0 +1,42 @@
+{%extends 'base.html'%}
+{% load static %}
+<html lang="en">
+  <head>
+    {%block style%}
+    {%endblock style%}
+  </head>
+  <body>
+    {%block body%}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1>Show Books</h1>
+        <div clss="d-flex" style="gap: 10px;">
+            <a href="{%url 'showbooks'%}" class="btn btn-primary ms-auto">Show All Books</a>
+            <a href="{%url 'showcheapbooks'%}" class="btn btn-primary ms-auto">Show Cheap Books</a>
+            <a href="{%url 'showexpensivebooks'%}" class="btn btn-primary ms-2">Show Expensive Books</a>
+        </div>
+    </div>
+    {% if data %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Book Name</th>
+                    <th scope="col">Book Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for value in data %}
+                <tr>
+                    <th scope="row">{{forloop.counter}}</th>
+                    <th scope="row">{{value.book}}</th>
+                    <th scope="row">{{value.price}}</th>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+    <h4> Data is not present</h4>
+    {% endif %}
+    {%endblock body%}
+  </body>
+</html>

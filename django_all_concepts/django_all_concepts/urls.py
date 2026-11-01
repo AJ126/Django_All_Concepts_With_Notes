@@ -36,6 +36,7 @@ urlpatterns = [
     path('classApp/', include('app_010_class_based_view.urls')),
     path('functioncardApp/', include('app_011_function_based_curd.urls')),
     path('ormApp/', include('app_012_orm.urls')),
+    path('advmodelapp/', include('app_013_advance_model.urls')),
 ]
 
 # access uploaded images (when user click on the image path on admin then open )

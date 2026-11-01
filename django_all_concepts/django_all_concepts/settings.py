@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'app_010_class_based_view',
     'app_011_function_based_curd',
     'app_012_orm',
+    'app_013_advance_model',
 ]
 
 MIDDLEWARE = [
