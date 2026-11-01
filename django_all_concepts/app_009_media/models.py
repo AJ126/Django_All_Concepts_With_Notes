@@ -1,5 +1,4 @@
 from django.db import models
-import datetime
 
 # Create your models here.
 class media(models.Model):
@@ -8,4 +7,4 @@ class media(models.Model):
 
 class images(models.Model):
     image = models.ImageField(upload_to='images')
-    date = models.DateTimeField(default=datetime.datetime.now())
+    date = models.DateTimeField()
