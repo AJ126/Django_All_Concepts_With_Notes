@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'app_011_function_based_curd',
     'app_012_orm',
     'app_013_advance_model',
+    'app_014_middleware',
 ]
 
 MIDDLEWARE = [
@@ -61,6 +62,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'app_014_middleware.middleware.ExecutionFlowMiddleware'
 ]
 
 ROOT_URLCONF = 'django_all_concepts.urls'
