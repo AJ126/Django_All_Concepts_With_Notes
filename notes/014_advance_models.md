@@ -921,3 +921,652 @@ class ProxyBook(Book):
 ```
 
 **Final tip:** Use abstract models when you want to reuse common fields, multi-table inheritance when parent and child need separate database tables, and proxy models when you only want to change the behavior or presentation of an existing model without changing its database structure.
+---
+
+# 14. Model Relationships in Django
+
+Django provides relationship fields to connect records between different database tables.
+
+The three main relationship types are:
+
+1. One-to-One Relationship (`OneToOneField`)
+2. One-to-Many Relationship (`ForeignKey`)
+3. Many-to-Many Relationship (`ManyToManyField`)
+
+## 14.1 One-to-One Relationship
+
+A one-to-one relationship means one record in the first table is connected to exactly one record in the second table, and vice versa.
+
+### Example
+
+**`models.py`**
+
+```python
+from django.db import models
+
+
+class Customer(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+
+
+class CustomerProfile(models.Model):
+    customer = models.OneToOneField(
+        Customer,
+        on_delete=models.CASCADE
+    )
+    address = models.CharField(max_length=100)
+    phone_number = models.CharField(max_length=15)
+```
+
+### How to access related data?
+
+**Access the customer profile from a customer:**
+
+```python
+customer = Customer.objects.get(id=1)
+
+# Access customer profile
+profile = customer.customerprofile
+
+print(profile.address)
+print(profile.phone_number)
+```
+
+**Access the customer from a customer profile:**
+
+```python
+profile = CustomerProfile.objects.get(id=1)
+
+# Access customer
+print(profile.customer.name)
+```
+
+### Important point: Reverse relationship
+
+Django automatically creates a reverse relationship.
+
+By default, the reverse accessor in this example is `customerprofile`, so we can use:
+
+```python
+customer.customerprofile
+```
+
+You can customize the reverse accessor by setting `related_name` on the relationship field.
+
+### When should we use `OneToOneField`?
+
+Use it when you want to separate additional information into another table but maintain a one-to-one connection.
+
+Examples:
+
+- User and UserProfile
+- Customer and CustomerProfile
+- Product and ProductDetails
+
+## 14.2 One-to-Many Relationship
+
+A one-to-many relationship means one record in the first table can be connected to multiple records in the second table.
+
+However, each record in the second table belongs to only one record in the first table.
+
+**Example:** One customer can place multiple orders, but each order belongs to one customer.
+
+### Why do we use `ForeignKey`?
+
+We use `ForeignKey` because one customer can have multiple orders.
+
+A `ForeignKey` creates a many-to-one relationship from the perspective of the model containing the field (`Order`).
+
+### Example
+
+```python
+from django.db import models
+
+
+class Customer(models.Model):
+    name = models.CharField(max_length=100)
+
+
+class Order(models.Model):
+    customer = models.ForeignKey(
+        Customer,
+        on_delete=models.CASCADE,
+        related_name="orders"
+    )
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+```
+
+### How to access related data?
+
+**Get the customer of an order:**
+
+```python
+order = Order.objects.get(id=101)
+print(order.customer.name)
+```
+
+**Get all orders of a customer:**
+
+```python
+customer = Customer.objects.get(id=1)
+orders = customer.orders.all()
+
+for order in orders:
+    print(order.id, order.amount)
+```
+
+### What is `related_name='orders'`?
+
+It allows us to access all related orders using:
+
+```python
+customer.orders.all()
+```
+
+Without `related_name`, Django uses the default reverse accessor:
+
+```python
+customer.order_set.all()
+```
+
+## 14.3 Many-to-Many Relationship
+
+A many-to-many relationship means multiple records in the first table can be connected to multiple records in the second table.
+
+**Example: Students and Courses**
+
+- One student can enroll in multiple courses.
+- One course can have multiple students.
+
+Django automatically creates an intermediate database table to maintain this relationship.
+
+### Example
+
+```python
+from django.db import models
+
+
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    courses = models.ManyToManyField(
+        "Course",
+        related_name="students"
+    )
+
+
+class Course(models.Model):
+    name = models.CharField(max_length=100)
+```
+
+### How to access related data?
+
+**Get all courses of a student:**
+
+```python
+student = Student.objects.get(id=1)
+courses = student.courses.all()
+
+for course in courses:
+    print(course.name)
+```
+
+**Get all students enrolled in a course:**
+
+```python
+course = Course.objects.get(id=1)
+students = course.students.all()
+
+for student in students:
+    print(student.name)
+```
+
+### Other examples
+
+- Students and Courses
+- Products and Tags
+- Posts and Categories
+- Employees and Projects
+- Users and Groups
+
+### Easy trick to remember
+
+- `OneToOneField` = One person, one profile.
+- `ForeignKey` = One customer, many orders.
+- `ManyToManyField` = Many students, many courses.
+
+---
+
+# 15. Aggregation in Django
+
+Imagine you have an e-commerce application with thousands of orders.
+
+Your manager asks:
+
+1. What is the total sales amount?
+2. What is the average order amount?
+3. What is the maximum order amount?
+4. How many orders have been placed?
+
+You could retrieve all orders and calculate these values using Python. However, that would be inefficient for large datasets.
+
+**Aggregation** allows us to perform calculations directly in the database and return summarized results.
+
+For example, a shopkeeper can calculate order amounts and sales totals directly using aggregation.
+
+### Import aggregation functions
+
+```python
+from django.db.models import Sum, Avg, Max, Min, Count
+```
+
+### Calculate total sales
+
+```python
+result = Order.objects.aggregate(
+    total_sales=Sum("amount")
+)
+
+# Example output:
+# {'total_sales': Decimal('5000')}
+```
+
+### Calculate average order amount
+
+```python
+result = Order.objects.aggregate(
+    average_amount=Avg("amount")
+)
+
+# Example output:
+# {'average_amount': Decimal('1250')}
+```
+
+### Find maximum order amount
+
+```python
+result = Order.objects.aggregate(
+    maximum_amount=Max("amount")
+)
+
+# Example output:
+# {'maximum_amount': Decimal('2000')}
+```
+
+### Count total orders
+
+```python
+result = Order.objects.aggregate(
+    total_orders=Count("id")
+)
+
+# Example output:
+# {'total_orders': 4}
+```
+
+### What does `aggregate()` return?
+
+`aggregate()` returns a Python dictionary.
+
+Example:
+
+```python
+{
+    "total_sales": Decimal("5000"),
+    "average_amount": Decimal("1250")
+}
+```
+
+### Calculate multiple values in one query
+
+```python
+result = Order.objects.aggregate(
+    total_sales=Sum("amount"),
+    average_amount=Avg("amount"),
+    maximum_amount=Max("amount"),
+    minimum_amount=Min("amount"),
+    total_orders=Count("id")
+)
+```
+
+---
+
+# 16. Annotation in Django
+
+Imagine your manager asks you to:
+
+- Display every customer.
+- Display how many orders each customer has placed.
+- Display the total amount spent by each customer.
+
+How can we calculate these values for every customer?
+
+This is where **annotation** comes into the picture.
+
+Annotation allows us to add calculated information to each individual record in a queryset.
+
+## Count how many orders each customer has placed
+
+Import `Count`:
+
+```python
+from django.db.models import Count
+```
+
+Use `annotate()`:
+
+```python
+customers = Customer.objects.annotate(
+    total_orders=Count("orders")
+)
+```
+
+### Explanation
+
+- `Customer.objects` gets the Customer queryset.
+- `annotate()` adds calculated information to each customer.
+- `total_orders` is the name of our calculated attribute.
+- `Count("orders")` counts the related orders of each customer.
+
+### Access the calculated value
+
+```python
+for customer in customers:
+    print(customer.name, customer.total_orders)
+```
+
+### Where did this attribute come from?
+
+We did not create `total_orders` inside our `Customer` model.
+
+Django dynamically attaches this calculated value to each `Customer` object returned by the annotated queryset.
+
+## Calculate total spending per customer
+
+```python
+from django.db.models import Sum
+
+customers = Customer.objects.annotate(
+    total_spent=Sum("orders__amount")
+)
+
+for customer in customers:
+    print(customer.name, customer.total_spent)
+```
+
+### Understanding `orders__amount`
+
+- `orders` accesses the related `Order` records.
+- `amount` accesses the amount field from those records.
+- The double underscore (`__`) is used to navigate relationships and fields in Django ORM queries.
+
+## Use multiple annotations together
+
+```python
+from django.db.models import Count, Sum, Avg
+
+customers = Customer.objects.annotate(
+    total_orders=Count("orders"),
+    total_spent=Sum("orders__amount"),
+    average_order=Avg("orders__amount")
+)
+
+for customer in customers:
+    print("Customer:", customer.name)
+    print("Orders:", customer.total_orders)
+    print("Total Spent:", customer.total_spent)
+    print("Average Order:", customer.average_order)
+```
+
+---
+
+# 17. `select_related()` in Django
+
+Imagine you have a Customer Management System.
+
+You want to display all orders along with their customer names. Your `Order` model contains a `ForeignKey` relationship with `Customer`.
+
+## Without `select_related()`
+
+```python
+orders = Order.objects.all()
+
+for order in orders:
+    print(order.id, order.customer.name)
+```
+
+It looks simple, but there can be a performance problem.
+
+Let's say your database contains 100 orders. Django may execute:
+
+1. One query to fetch all orders.
+2. One additional query for each order to retrieve its customer.
+
+That means approximately 101 database queries in this example. This problem is commonly called the **N+1 query problem**.
+
+## Solution: `select_related()`
+
+Django provides `select_related()` to solve this problem for `ForeignKey` and `OneToOneField` relationships.
+
+```python
+orders = Order.objects.select_related("customer")
+
+for order in orders:
+    print(order.id, order.customer.name)
+```
+
+Now Django uses a SQL `JOIN` to fetch the orders and their related customers together.
+
+Instead of approximately 101 queries, it can retrieve the required data in one SQL query.
+
+Conceptually, the SQL is similar to:
+
+```sql
+SELECT *
+FROM orders
+INNER JOIN customers
+    ON orders.customer_id = customers.id;
+```
+
+### When should we use `select_related()`?
+
+Use it when you need to retrieve related objects connected through:
+
+- `ForeignKey`
+- `OneToOneField`
+
+**Note:** `select_related()` uses SQL `JOIN` and is generally best for single-valued relationships.
+
+---
+
+# 18. `prefetch_related()` in Django
+
+Imagine you want to display:
+
+- Every customer.
+- Their name.
+- All orders placed by that customer.
+
+Here we are dealing with a one-to-many relationship.
+
+## Without `prefetch_related()`
+
+```python
+customers = Customer.objects.all()
+
+for customer in customers:
+    print(customer.name)
+
+    for order in customer.orders.all():
+        print(order.id, order.amount)
+```
+
+Suppose there are 100 customers.
+
+Django may execute:
+
+- One query to fetch all customers.
+- 100 additional queries to fetch orders for each customer.
+
+Total: approximately 101 queries. This is another example of the N+1 query problem.
+
+## Solution: `prefetch_related()`
+
+```python
+customers = Customer.objects.prefetch_related("orders")
+
+for customer in customers:
+    print(customer.name)
+
+    for order in customer.orders.all():
+        print(order.id, order.amount)
+```
+
+Now Django generally executes two queries:
+
+1. Fetch all customers.
+2. Fetch all related orders for those customers.
+
+Conceptually, the queries are similar to:
+
+```sql
+SELECT * FROM customer;
+
+SELECT *
+FROM orders
+WHERE customer_id IN (1, 2, 3);
+```
+
+Django connects the orders to their respective customers in Python. This means you do not need to execute a separate query for every customer.
+
+### When should we use `prefetch_related()`?
+
+It is useful for:
+
+- `ManyToManyField`
+- Reverse `ForeignKey` relationships
+- Other multi-valued relationships
+
+### Easy way to remember
+
+Imagine you have a Customer and Orders relationship:
+
+- One Order belongs to one Customer → `select_related("customer")`.
+- One Customer has multiple Orders → `prefetch_related("orders")`.
+
+---
+
+# 19. Transactions in Django
+
+## What is a transaction?
+
+A transaction is a group of database operations that should be treated as one single unit.
+
+Either all database operations should succeed, or none of them should be saved.
+
+This is important when multiple database operations depend on each other.
+
+### Example: Bank money transfer
+
+Imagine Shiv transfers ₹5,000 to Parvati.
+
+There are two database operations:
+
+1. Deduct ₹5,000 from Shiv's account.
+2. Add ₹5,000 to Parvati's account.
+
+Suppose the first operation succeeds but the second operation fails.
+
+What happens?
+
+Shiv loses ₹5,000, but Parvati does not receive ₹5,000. That is a serious problem!
+
+We need a mechanism that ensures both operations succeed together. This is exactly what database transactions provide.
+
+## Example model
+
+```python
+from django.db import models
+
+
+class BankAccount(models.Model):
+    name = models.CharField(max_length=100)
+    balance = models.DecimalField(
+        max_digits=10,
+        decimal_places=2
+    )
+```
+
+## Without transactions
+
+```python
+shiv = BankAccount.objects.get(name="Shiv")
+parvati = BankAccount.objects.get(name="Parvati")
+
+shiv.balance -= 5000
+parvati.balance += 5000
+
+shiv.save()
+parvati.save()
+```
+
+Suppose an error occurs after `shiv.save()` and before `parvati.save()`.
+
+The amount is deducted from Shiv's account but is not credited to Parvati's account.
+
+This is where transactions become important.
+
+## Solution: `transaction.atomic()`
+
+We can use `transaction.atomic()` to execute multiple database operations as one transaction.
+
+```python
+from django.db import transaction
+
+
+def transfer_money():
+    with transaction.atomic():
+        shiv = BankAccount.objects.get(name="Shiv")
+        parvati = BankAccount.objects.get(name="Parvati")
+
+        shiv.balance -= 5000
+        shiv.save()
+
+        parvati.balance += 5000
+        parvati.save()
+```
+
+- If an exception occurs inside the atomic block, Django rolls back the transaction.
+- If everything succeeds, Django commits the changes.
+
+## Another real-life example: Customer order
+
+Suppose a customer places an order. Your application needs to:
+
+1. Create a new order.
+2. Add products to that order.
+3. Reduce the stock quantity of those products.
+4. Save the order details.
+
+These operations should succeed or fail together.
+
+## Using `transaction.atomic()` as a decorator
+
+You can also use `atomic()` as a decorator.
+
+```python
+from django.db import transaction
+
+
+@transaction.atomic
+def create_customer():
+    customer = Customer.objects.create(name="Shiv")
+
+    CustomerProfile.objects.create(
+        customer=customer,
+        date_of_birth="1998-05-10",
+        address="Pune"
+    )
+```
+
+The function's database operations are committed together if they complete successfully. If an exception causes the transaction to roll back, the database changes made within it are rolled back.

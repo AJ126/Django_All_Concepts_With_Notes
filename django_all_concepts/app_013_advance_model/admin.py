@@ -50,3 +50,22 @@ class booksAdmin(admin.ModelAdmin):
 class proxyBookAdmin(admin.ModelAdmin):
     list_display = ['book','price']
 
+@admin.register(Customer)
+class CustomerAdmin(admin.ModelAdmin):
+    list_display = ['name','email']
+
+@admin.register(CustomerProfile)
+class CustomerProfileAdmin(admin.ModelAdmin):
+    list_display = ['customer','address','phone_number']
+
+@admin.register(order)
+class orderAdmin(admin.ModelAdmin):
+    list_display = ['customer','order_date','total_amount']
+
+@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+    list_display = ['name']
+
+@admin.register(Course)
+class CourseAdmin(admin.ModelAdmin):
+    list_display = ['name','description']

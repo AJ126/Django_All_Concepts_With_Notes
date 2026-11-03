@@ -68,3 +68,29 @@ class proxyBook(books):
     class Meta:
         proxy = True
         ordering = ['price']
+
+
+class Customer(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+
+#one to one relationship
+class CustomerProfile(models.Model):
+    customer = models.OneToOneField(Customer, on_delete=models.CASCADE, related_name='profile')
+    address = models.CharField(max_length=100)
+    phone_number = models.CharField(max_length=15)
+
+# one to many relationship
+class order(models.Model):
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='orders')
+    order_date = models.DateField()
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+
+# Many-to-Many Relationship
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    courses = models.ManyToManyField('Course', related_name='students')
+
+class Course(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField()
