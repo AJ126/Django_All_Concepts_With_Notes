@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'app_012_orm',
     'app_013_advance_model',
     'app_014_middleware',
+    'app_015_signals',
 ]
 
 MIDDLEWARE = [
