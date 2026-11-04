@@ -1,206 +1,165 @@
-# Django Signals – Complete Notes
+# Django Signals
 
 ## 1. What are Django Signals?
 
-Django Signals allow one part of a Django application to automatically notify another part when a particular event occurs.
+Django Signals provide a way for one part of a Django application to notify another part when a particular event happens.
 
 In simple words:
 
-**Signals allow us to execute additional code automatically when a specific action happens in Django, without manually calling that code from every place where the action occurs.**
+- An event happens in Django.
+- Django sends a signal to announce that the event occurred.
+- A receiver function that is connected to that signal is called automatically.
+- The receiver performs an additional task.
 
-Signals are utilities that allow us to associate events with actions.
+You do not call the receiver function directly at the place where the event occurs. Django's signal dispatcher calls it when the signal is sent.
 
-They allow certain senders to notify a set of receivers that an action has taken place.
+**Example:** When a customer is created, Django can automatically call a receiver function to create that customer's profile.
 
-### Real-life example: Online shopping notification
+> Signals are useful when separate parts of an application need to react to the same event without the sender needing to know about those receivers.
 
-Imagine that you order a product from an online shopping application.
+## 2. Real-life example: online shopping notification
 
-What happens?
+Imagine that a customer places an order in an online shopping application.
 
-1. You place an order.
-2. The application saves your order.
-3. You automatically receive an order confirmation message.
+1. The customer places an order.
+2. The application saves the order.
+3. The customer receives an order confirmation.
 4. The shopkeeper receives an order notification.
 
-You did not manually call the notification system from every place that creates an order.
+The order-creation code does not necessarily need to know the internal details of every notification task. A signal can announce that an order has been created, and registered receivers can react to that event.
 
-Instead, the application can use an event-based mechanism to trigger these additional operations when an order is created.
+This is the basic idea behind Django Signals.
 
-Django Signals provide this kind of mechanism.
+## 3. Why do we need Django Signals?
 
----
-
-## 2. Why do we need Django Signals?
-
-Suppose we are developing a Customer Management System.
-
-We have a `Customer` model:
+Suppose we are developing a Customer Management System and have a `Customer` model:
 
 ```python
 from django.db import models
 
 
 class Customer(models.Model):
-
     name = models.CharField(max_length=100)
-
     email = models.EmailField()
 ```
 
 Whenever a new customer is registered, we want to:
 
-1. Save customer information in the database.
+1. Save the customer's information in the database.
 2. Create a customer profile automatically.
 3. Send a welcome email.
 4. Create an activity log.
 
-### Without signals
-
-We might write all these operations inside our view:
+Without signals, we might put all these operations inside the view:
 
 ```python
 from django.shortcuts import redirect
-
 from .models import Customer
 
 
 def create_customer(request):
-
     customer = Customer.objects.create(
         name="Shiv",
-        email="shiv@example.com"
+        email="shiv@example.com",
     )
 
-    # Create customer profile
+    # Create customer profile.
+    # Send welcome email.
+    # Create activity log.
 
-    # Send welcome email
-
-    # Create activity log
-
-    return redirect('customer_list')
+    return redirect("customer_list")
 ```
 
-This creates a problem:
+As the application grows, the view can become responsible for too many tasks. If another part of the application creates a customer, we may also have to remember to repeat those additional operations.
 
-- Our view becomes responsible for too many tasks.
-- The same additional operations might need to be repeated in multiple views.
-- If another part of the application creates a customer, we must remember to repeat those operations.
+Signals can move suitable follow-up tasks into separate receiver functions. The customer-creation code sends the event, and the registered receivers respond to it.
 
-### With signals
+**Important:** Signals do not replace views, services, or business logic. They are one tool for separating event-related tasks.
 
-We can separate the additional operations from the main business logic.
+## 4. How do Django Signals work?
 
-For example:
-
-```text
-Customer Created
-       |
-       v
-   post_save Signal
-       |
-       +----------------------+
-       |                      |
-       v                      v
-Create Profile           Create Activity Log
-       |
-       v
-Send Welcome Email
-```
-
-Now, whenever a customer is saved, Django can notify the registered receiver function.
-
-**Important:** Signals help separate event-driven tasks from the code that triggers an event. However, they should not be used for every operation. If the business process must be explicit, predictable, and easy to follow, calling a service function directly may be a better choice.
-
----
-
-## 3. Important Terms: Signal, Sender and Receiver
-
-There are three important terms in Django Signals.
+There are three important terms:
 
 | Term | Meaning |
 |---|---|
-| Signal | Announces that an event has happened. |
-| Sender | The model or object that generates the event. |
-| Receiver | The function that responds to the event. |
+| **Signal** | Announces that an event has happened. |
+| **Sender** | The model or object that sends the signal. |
+| **Receiver** | The function or method that responds to the signal. |
 
-### Example
+For example, when a `Customer` object is saved:
 
-```python
-@receiver(post_save, sender=Customer)
-def create_customer_profile(sender, instance, created, **kwargs):
+- **Signal:** `post_save`
+- **Sender:** `Customer` model class
+- **Receiver:** `create_customer_profile()`
+- **Instance:** The particular customer object that was saved
 
-    if created:
+A simplified flow:
 
-        CustomerProfile.objects.create(customer=instance)
+```text
+Customer object is saved
+          |
+          v
+     post_save signal
+          |
+          v
+   Receiver function runs
+          |
+          v
+Create customer profile
 ```
 
-Here:
+## 5. Types of Django Signals
 
-- `post_save` is the signal.
-- `Customer` is the sender.
-- `create_customer_profile` is the receiver.
+Django provides built-in signals for different events. The main categories are:
 
----
+1. Authentication signals (login and logout)
+2. Model signals
+3. Management signals
+4. Request/response signals
+5. Test signals
+6. Database connection signals
 
-## 4. Types of Django Signals
+Django also allows us to define custom signals.
 
-Django provides several built-in signals.
+The detailed signals in each category are explained below.
 
-The important signal groups covered in these notes are:
+## 6. Creating and registering a model signal
 
-1. Login and Logout Signals
-2. Model Signals
-3. Management Signals
-4. Request/Response Signals
-5. Database Signals
-6. Test-related Signals
-7. Custom Signals
-
-The sections below explain the main built-in signal groups and their important signals.
-
----
-
-## 5. How to Create Custom Model Signals
-
-Let's create a signal that automatically creates a customer profile whenever a new customer is registered.
+We will use the Customer Management System example to understand how to create a signal.
 
 ### Step 1: Create the models
 
-`models.py`
+In `models.py`:
 
 ```python
 from django.db import models
 
 
 class Customer(models.Model):
-
     name = models.CharField(max_length=100)
-
     email = models.EmailField()
 
 
 class CustomerProfile(models.Model):
-
     customer = models.OneToOneField(
         Customer,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name="profile",
     )
-
-    address = models.CharField(
-        max_length=200,
-        blank=True
-    )
+    bio = models.TextField(blank=True)
 ```
 
-We use `OneToOneField` because each customer should have one customer profile.
+Here, each customer has one related profile.
 
 ### Step 2: Create a `signals.py` file
 
-Inside the application folder, create a separate file named `signals.py`.
+Create `signals.py` inside the same Django application, alongside files such as `models.py` and `apps.py`.
+
+Example application structure:
 
 ```text
 customer_app/
+    migrations/
     __init__.py
     admin.py
     apps.py
@@ -211,7 +170,7 @@ customer_app/
 
 ### Step 3: Write the receiver function
 
-`signals.py`
+In `signals.py`:
 
 ```python
 from django.db.models.signals import post_save
@@ -222,160 +181,70 @@ from .models import Customer, CustomerProfile
 
 @receiver(post_save, sender=Customer)
 def create_customer_profile(sender, instance, created, **kwargs):
-
     if created:
-
-        CustomerProfile.objects.create(
-            customer=instance
-        )
-
+        CustomerProfile.objects.create(customer=instance)
         print("Customer profile created successfully!")
 ```
 
-Let's understand the code.
+Explanation:
 
-#### A. `post_save`
+- `post_save` is sent after Django saves a model instance.
+- `@receiver(...)` connects the function to the signal.
+- `sender=Customer` means this receiver listens for `post_save` events from the `Customer` model.
+- `sender` is the model class that sent the signal.
+- `instance` is the actual model object that was saved.
+- `created` is `True` when a new database record was created and `False` when an existing record was updated.
+- `**kwargs` accepts the other keyword arguments sent with the signal.
 
-```python
-from django.db.models.signals import post_save
-```
+The `if created:` condition ensures that the profile is created only when a new customer is inserted, not every time an existing customer is updated.
 
-`post_save` is a built-in Django model signal.
+**Note:** This example assumes the profile does not already exist. If other code can create profiles independently, handle the possibility of an existing profile (for example, with `get_or_create()`) to avoid a one-to-one uniqueness error.
 
-It is sent after a model instance's `save()` method completes.
+### Step 4: Register the signals in `apps.py`
 
-#### B. `receiver`
+Django must import the `signals.py` module so that the receiver is registered.
 
-```python
-from django.dispatch import receiver
-```
-
-The `receiver` decorator connects a Python function to a signal.
-
-#### C. `@receiver()`
-
-```python
-@receiver(post_save, sender=Customer)
-```
-
-This connects our receiver function to the `post_save` signal for the `Customer` model.
-
-It means:
-
-Whenever a `Customer` object is saved, Django calls this receiver function.
-
-#### D. `sender=Customer`
-
-```python
-sender=Customer
-```
-
-This specifies which model generates the signal.
-
-Our receiver will respond to `post_save` events sent by the `Customer` model.
-
-#### E. `instance`
-
-```python
-instance
-```
-
-It represents the actual model object that was saved.
-
-For example, if we save this customer:
-
-```python
-Customer.objects.create(
-    name="Shiv",
-    email="shiv@example.com"
-)
-```
-
-The `instance` argument represents that newly created customer object.
-
-#### F. `created`
-
-```python
-if created:
-```
-
-This tells us whether the object was newly created.
-
-| Situation | `created` value |
-|---|---|
-| New customer created | `True` |
-| Existing customer updated | `False` |
-
-We use this condition because we only want to create a customer profile when a new customer is registered.
-
-#### G. `**kwargs`
-
-```python
-**kwargs
-```
-
-It accepts additional keyword arguments passed by Django when the signal is sent.
-
-Signal receivers should accept the documented signal arguments and `**kwargs` so they remain compatible with the signal's arguments.
-
----
-
-## 6. Register Signals in `apps.py`
-
-One important thing:
-
-Django must import your `signals.py` file so that the receiver functions get registered.
-
-We can do this using the `ready()` method of an application's configuration class.
-
-`apps.py`
+In `apps.py`:
 
 ```python
 from django.apps import AppConfig
 
 
 class CustomerAppConfig(AppConfig):
-
-    default_auto_field = 'django.db.models.BigAutoField'
-
-    name = 'customer_app'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "customer_app"
 
     def ready(self):
-
         from . import signals
 ```
 
-### What is `ready()`?
+Explanation:
 
-The `ready()` method runs when Django initializes the application registry.
+- `AppConfig` stores configuration for a Django application.
+- `ready()` is called when Django has loaded the application registry.
+- Importing `signals` runs the `@receiver` decorator and connects the receiver function to the signal.
 
-It imports `signals.py`, which registers the receiver functions.
+The import is intentionally inside `ready()`. This avoids importing signal handlers too early during application loading.
 
-### Register the application in `settings.py`
+### Step 5: Register the application configuration
 
-Add the AppConfig class path to `INSTALLED_APPS`:
+In `settings.py`, add the application configuration class to `INSTALLED_APPS`:
 
 ```python
 INSTALLED_APPS = [
+    # Django applications...
 
-    # Django applications
-
-    'customer_app.apps.CustomerAppConfig',
-
+    "customer_app.apps.CustomerAppConfig",
 ]
 ```
 
-Use your actual application name and AppConfig class.
+Use your actual application package and configuration class names.
 
-**Important:** In modern Django versions, registering the AppConfig class path is the recommended approach. The old `default_app_config` setting in an app's `__init__.py` is no longer needed.
+**Important:** In modern Django versions, do not add `default_app_config` to the app's `__init__.py`. That setting is obsolete. Register the `AppConfig` class in `INSTALLED_APPS` as shown above. If Django can automatically discover your app configuration, the short app name may also work, but the explicit configuration path makes the registration clear.
 
----
+### Step 6: Test the signal
 
-## 7. Test the Signal
-
-Now we can test whether the signal works.
-
-Open the terminal and run:
+Start the Django shell:
 
 ```bash
 python manage.py shell
@@ -384,75 +253,64 @@ python manage.py shell
 Create a customer:
 
 ```python
-from customer_app.models import Customer
+from customer_app.models import Customer, CustomerProfile
 
 customer = Customer.objects.create(
     name="Shiv",
-    email="shiv@example.com"
+    email="shiv@example.com",
 )
 ```
 
-Expected result:
+The `post_save` signal is sent, and the receiver creates the profile.
 
-```text
-Customer profile created successfully!
-```
-
-Check whether the profile was created:
+Check the profile:
 
 ```python
-from customer_app.models import CustomerProfile
-
-CustomerProfile.objects.all()
+CustomerProfile.objects.get(customer=customer)
 ```
 
-We can also check the related profile:
-
-```python
-customer.customerprofile
-```
-
-The exact reverse relation name depends on the field's `related_name`. Without a custom `related_name`, Django uses the model's lowercase name.
-
-### Test an update
+Update the same customer:
 
 ```python
 customer.name = "Shiv Updated"
-
 customer.save()
 ```
 
-The `post_save` signal will execute again, but `created` will be `False`.
+The receiver runs again because `post_save` is sent after the update too. However, `created` is `False`, so the profile is not created again.
 
-Therefore, another profile will not be created.
+## 7. Receiver functions
 
----
+A receiver is a Python function or method that is called when a connected signal is sent.
 
-## 8. Two Ways to Connect a Receiver to a Signal
+A receiver must accept the `sender` argument and should accept `**kwargs`:
 
-Django provides two common ways to connect a receiver function to a signal.
+```python
+def my_receiver(sender, **kwargs):
+    print("A signal was received.")
+```
 
-### Method 1: Manual connection using `connect()`
+Why use `**kwargs`?
 
-We can register a receiver function using the signal's `connect()` method.
+Django sends signal data as keyword arguments. The arguments depend on the particular signal. Accepting `**kwargs` makes the receiver compatible with the documented signal arguments and future additions.
 
-Example:
+A receiver can be an ordinary function, a method, or an asynchronous function. For most beginner examples, a normal function is sufficient.
+
+## 8. Connecting a receiver to a signal
+
+There are two common ways to connect a receiver.
+
+### Method 1: Using `Signal.connect()`
 
 ```python
 from django.db.models.signals import post_save
-
 from .models import Customer
 
 
-def receiver_fun(sender, instance, **kwargs):
+def customer_saved(sender, instance, created, **kwargs):
+    print("Customer save event received.")
 
-    print("Customer saved:", instance.name)
 
-
-post_save.connect(
-    receiver_fun,
-    sender=Customer
-)
+post_save.connect(customer_saved, sender=Customer)
 ```
 
 Syntax:
@@ -462,56 +320,32 @@ signal.connect(
     receiver,
     sender=None,
     weak=True,
-    dispatch_uid=None
+    dispatch_uid=None,
 )
 ```
 
-#### Parameters
+Parameters:
 
-| Parameter | Meaning |
+| Parameter | Explanation |
 |---|---|
-| `receiver` | The callback function connected to the signal. |
-| `sender` | Specifies the particular sender to receive signals from. |
-| `weak` | Controls whether Django stores the receiver as a weak reference. |
-| `dispatch_uid` | A unique identifier used to prevent duplicate registration of the same receiver. |
+| `receiver` | The callback function or method to connect. |
+| `sender` | Optional. Limits the receiver to a particular sender. |
+| `weak` | Defaults to `True`. Django stores receivers as weak references. |
+| `dispatch_uid` | Optional unique identifier used to prevent duplicate registrations. |
 
-**Understanding `weak`:**
-
-Django stores signal receivers as weak references by default.
-
-If a receiver is a local function or another object that has no strong reference, it may be garbage-collected.
-
-To prevent that, we can use:
-
-```python
-signal.connect(
-    receiver_fun,
-    sender=Customer,
-    weak=False
-)
-```
-
-**Understanding `dispatch_uid`:**
-
-It provides a unique identifier for a receiver.
-
-Example:
+**About `weak`:** If a receiver is a local function and nothing else keeps a strong reference to it, it may be garbage-collected. Use `weak=False` when you need to prevent that:
 
 ```python
 post_save.connect(
-    receiver_fun,
+    customer_saved,
     sender=Customer,
-    dispatch_uid='customer_post_save_receiver'
+    weak=False,
 )
 ```
 
-This helps prevent duplicate registration when the same receiver is connected multiple times with the same dispatch UID.
-
 ### Method 2: Using the `@receiver` decorator
 
-This is a convenient and commonly used method.
-
-Example:
+This is a convenient and commonly used approach:
 
 ```python
 from django.db.models.signals import post_save
@@ -521,679 +355,457 @@ from .models import Customer
 
 
 @receiver(post_save, sender=Customer)
-def receiver_fun(sender, instance, **kwargs):
-
-    print("Customer saved:", instance.name)
+def customer_saved(sender, instance, created, **kwargs):
+    print("Customer save event received.")
 ```
 
-This decorator connects the function to the specified signal.
+The decorator connects the function to `post_save`.
 
-It is equivalent to registering the function using `signal.connect()`.
+The `sender=Customer` argument means that the receiver responds only to save events sent by the `Customer` model.
 
----
+## 9. Important arguments received by model signal handlers
 
-## 9. Built-in Django Signals
-
-Django provides built-in signals that allow application code to get notified when particular actions happen inside Django.
-
-The following sections cover the built-in signal groups from the original notes.
-
-### 9.1 Login and Logout Signals
-
-The Django authentication framework provides signals that notify us when a user logs in or logs out.
-
-Import them from:
-
-```python
-from django.contrib.auth.signals import (
-    user_logged_in,
-    user_logged_out,
-    user_login_failed
-)
-```
-
-#### A. `user_logged_in`
-
-Sent when a user successfully logs in.
-
-Arguments:
+The exact arguments depend on the signal.
 
 | Argument | Meaning |
 |---|---|
-| `sender` | The class of the user that just logged in. |
-| `request` | The current `HttpRequest` instance. |
-| `user` | The user instance that just logged in. |
+| `sender` | The model class that sent the signal. |
+| `instance` | The model object involved in the event, when provided by that signal. |
+| `created` | For `post_save`, indicates whether a new record was created. |
+| `raw` | For save signals, indicates whether the model is being saved as presented while loading a fixture. |
+| `using` | The database alias used for the operation. |
+| `update_fields` | The set of fields passed to `save(update_fields=...)`, or `None`. |
 
-Example:
+For example, if a new customer named Shiv is saved, `instance` represents that particular customer object. You can access its fields:
 
 ```python
-from django.contrib.auth.signals import user_logged_in
-from django.dispatch import receiver
-
-
-@receiver(user_logged_in)
-def login_success(sender, request, user, **kwargs):
-
-    print(user.username, "logged in successfully")
+print(instance.name)
+print(instance.email)
 ```
 
-#### B. `user_logged_out`
+The `created` argument is specific to `post_save`; it is not supplied by every signal.
 
-Sent when the logout process occurs.
+## 10. Built-in Django Signals
+
+Django's built-in signals are grouped by the part of the framework that sends them.
+
+### 10.1 Authentication signals
+
+**Module:** `django.contrib.auth.signals`
+
+Django's authentication framework sends these signals when a user logs in, logs out, or fails to log in.
+
+#### 1. `user_logged_in`
+
+Sent after a user successfully logs in.
 
 Arguments:
 
-| Argument | Meaning |
-|---|---|
-| `sender` | The user class, or `None` if the user was not authenticated. |
-| `request` | The current `HttpRequest` instance. |
-| `user` | The user who logged out, or `None` if the user was not authenticated. |
+- `sender`: The class of the user that just logged in.
+- `request`: The current `HttpRequest` instance.
+- `user`: The user instance that just logged in.
 
-Example:
+Example use cases:
 
-```python
-from django.contrib.auth.signals import user_logged_out
-from django.dispatch import receiver
+- Record a successful login.
+- Update a user's last-activity information.
+- Create an audit log.
 
+#### 2. `user_logged_out`
 
-@receiver(user_logged_out)
-def logout_success(sender, request, user, **kwargs):
-
-    print("User logged out:", user)
-```
-
-#### C. `user_login_failed`
-
-Sent when a user fails to log in successfully.
+Sent when the logout process is called.
 
 Arguments:
 
-| Argument | Meaning |
-|---|---|
-| `sender` | The authentication backend path or identifier. |
-| `credentials` | A dictionary of credentials passed to authentication, with sensitive values filtered. |
-| `request` | The `HttpRequest` object, if provided. |
+- `sender`: The user class, or `None` if the user was not authenticated.
+- `request`: The current `HttpRequest` instance.
+- `user`: The user instance, or `None` if the user was not authenticated.
 
-Example:
+Example use case: Record when a user logs out.
 
-```python
-from django.contrib.auth.signals import user_login_failed
-from django.dispatch import receiver
+#### 3. `user_login_failed`
 
-
-@receiver(user_login_failed)
-def login_failed(sender, credentials, request, **kwargs):
-
-    print("Login failed")
-```
-
-**Security note:** Do not print or store raw login credentials. Django filters sensitive credential values before sending this signal, but applications should still treat authentication data carefully.
-
----
-
-### 9.2 Model Signals
-
-Model signals are sent by Django's model system when certain model-related operations happen.
-
-Import them from:
-
-```python
-from django.db.models import signals
-```
-
-Important model signals:
-
-#### A. `pre_init`
-
-Sent at the beginning of a model's `__init__()` method.
-
-It happens whenever a model instance is initialized.
+Sent when authentication fails.
 
 Arguments:
 
-| Argument | Meaning |
-|---|---|
-| `sender` | The model class being initialized. |
-| `args` | Positional arguments passed to `__init__()`. |
-| `kwargs` | Keyword arguments passed to `__init__()`. |
+- `sender`: The name of the authentication backend.
+- `credentials`: A dictionary containing the credentials supplied for authentication. Values matching sensitive patterns (including passwords) are cleansed before being sent.
+- `request`: The `HttpRequest` object, if one was provided to `authenticate()`.
 
-#### B. `post_init`
+Example use cases:
+
+- Monitor repeated failed login attempts.
+- Record security-related events.
+
+**Security note:** Do not log passwords or other sensitive authentication data.
+
+### 10.2 Model signals
+
+**Module:** `django.db.models.signals`
+
+Model signals are sent by Django's model system during model initialization, saving, deleting, and many-to-many relationship changes.
+
+#### 1. `pre_init`
+
+Sent at the beginning of a model's `__init__()` method, whenever a model instance is initialized.
+
+Arguments:
+
+- `sender`: The model class being initialized.
+- `args`: Positional arguments passed to `__init__()`.
+- `kwargs`: Keyword arguments passed to `__init__()`.
+
+#### 2. `post_init`
 
 Sent after a model's `__init__()` method finishes.
 
 Arguments:
 
-| Argument | Meaning |
-|---|---|
-| `sender` | The model class being initialized. |
-| `instance` | The newly initialized model instance. |
+- `sender`: The model class.
+- `instance`: The newly initialized model instance.
 
-#### C. `pre_save`
+**Note:** Avoid database queries in `pre_init` and `post_init` receivers. These signals can run for every model instance created while iterating over a queryset, which can cause performance problems.
 
-Sent at the beginning of a model's `save()` operation.
+#### 3. `pre_save`
 
-Arguments:
-
-| Argument | Meaning |
-|---|---|
-| `sender` | The model class. |
-| `instance` | The model instance being saved. |
-| `raw` | `True` when saving fixture data in raw mode. |
-| `using` | Database alias being used. |
-| `update_fields` | The fields being updated, or `None`. |
-
-**Important:** When `raw=True`, avoid querying or modifying other records because the database may not yet be in a consistent state while fixtures are being loaded.
-
-#### D. `post_save`
-
-Sent at the end of a model's `save()` operation.
+Sent at the beginning of a model's `save()` method.
 
 Arguments:
 
-| Argument | Meaning |
-|---|---|
-| `sender` | The model class. |
-| `instance` | The model instance being saved. |
-| `created` | `True` for a newly created record; otherwise `False`. |
-| `raw` | Indicates whether the model is being saved in raw fixture mode. |
-| `using` | Database alias being used. |
-| `update_fields` | Fields being updated, or `None`. |
+- `sender`: The model class.
+- `instance`: The model instance being saved.
+- `raw`: `True` when the object is being saved as presented during fixture loading. Avoid querying or modifying other records in this situation because the database may not be in a consistent state.
+- `using`: The database alias being used.
+- `update_fields`: The fields passed to `save(update_fields=...)`, or `None`.
 
-Example:
+Example use case: Perform a small preparation step before a model is saved.
 
-```python
-from django.db.models.signals import post_save
-from django.dispatch import receiver
+#### 4. `post_save`
 
-from .models import Customer
-
-
-@receiver(post_save, sender=Customer)
-def customer_saved(sender, instance, created, raw, using, update_fields, **kwargs):
-
-    if created:
-        print("New customer created:", instance.name)
-    else:
-        print("Customer updated:", instance.name)
-```
-
-#### E. `pre_delete`
-
-Sent at the beginning of a model's `delete()` operation or a queryset's `delete()` operation.
+Sent at the end of a model's `save()` method.
 
 Arguments:
 
-| Argument | Meaning |
-|---|---|
-| `sender` | The model class. |
-| `instance` | The model instance being deleted. |
-| `using` | Database alias being used. |
+- `sender`: The model class.
+- `instance`: The model instance that was saved.
+- `created`: `True` if a new record was created; otherwise `False`.
+- `raw`: `True` when saving a fixture as presented.
+- `using`: The database alias being used.
+- `update_fields`: The fields passed to `save(update_fields=...)`, or `None`.
 
-#### F. `post_delete`
+Example use cases:
 
-Sent at the end of a model's `delete()` operation or a queryset's `delete()` operation.
+- Create a related profile when a customer is created.
+- Record an activity after a record is saved.
+- Trigger a follow-up task.
 
-Arguments:
+#### 5. `pre_delete`
 
-| Argument | Meaning |
-|---|---|
-| `sender` | The model class. |
-| `instance` | The model instance that was deleted. |
-| `using` | Database alias being used. |
-
-**Important:** After deletion, the object no longer exists in the database. Be careful when accessing or modifying related data using this instance.
-
-#### G. `m2m_changed`
-
-Sent when a Many-to-Many relationship changes.
+Sent at the beginning of a model instance's `delete()` method or a queryset's `delete()` method.
 
 Arguments:
 
-| Argument | Meaning |
+- `sender`: The model class.
+- `instance`: The model instance being deleted.
+- `using`: The database alias being used.
+- `origin`: The model instance or queryset from which the deletion originated.
+
+Example use case: Record information about a record before it is deleted.
+
+#### 6. `post_delete`
+
+Sent at the end of a model instance's `delete()` method or a queryset's `delete()` method.
+
+Arguments:
+
+- `sender`: The model class.
+- `instance`: The model instance that was deleted.
+- `using`: The database alias being used.
+- `origin`: The model instance or queryset from which the deletion originated.
+
+**Important:** The object has already been deleted from the database. The Python `instance` still exists in memory, so you can inspect its field values, but you cannot assume its database row still exists.
+
+Example use case: Record a deletion in an audit log.
+
+#### 7. `m2m_changed`
+
+Sent when a `ManyToManyField` relationship changes.
+
+Arguments:
+
+- `sender`: The intermediate through model for the many-to-many relationship.
+- `instance`: The model instance whose relationship is being changed.
+- `action`: The operation being performed.
+- `reverse`: Indicates whether the change is being made from the reverse side of the relationship.
+- `model`: The class of the related objects.
+- `pk_set`: The set of affected primary keys for add/remove actions; it is `None` for clear actions.
+- `using`: The database alias being used.
+
+Common `action` values:
+
+| Action | Meaning |
 |---|---|
-| `sender` | The intermediate Many-to-Many model. |
-| `instance` | The model instance whose relationship is changing. |
-| `action` | The operation being performed. |
-| `reverse` | Indicates whether the operation is on the reverse relation. |
-| `model` | The class of the related objects. |
-| `pk_set` | Set of related object primary keys, where applicable. |
-| `using` | Database alias being used. |
+| `pre_add` | Before objects are added. |
+| `post_add` | After objects are added. |
+| `pre_remove` | Before objects are removed. |
+| `post_remove` | After objects are removed. |
+| `pre_clear` | Before the relationship is cleared. |
+| `post_clear` | After the relationship is cleared. |
 
-Common `action` values include:
+Although it is documented with model signals, `m2m_changed` is sent by the many-to-many field's intermediate model manager.
 
-- `pre_add`
-- `post_add`
-- `pre_remove`
-- `post_remove`
-- `pre_clear`
-- `post_clear`
+Example use case: Track when a student is added to or removed from a course.
 
-Example:
+#### 8. `class_prepared`
 
-```python
-from django.db.models.signals import m2m_changed
-from django.dispatch import receiver
+Sent when a model class has been fully prepared and registered with Django's model system.
 
-from .models import Student
+Arguments:
 
+- `sender`: The model class that has just been prepared.
 
-@receiver(m2m_changed, sender=Student.courses.through)
-def courses_changed(sender, instance, action, **kwargs):
+Django uses this signal internally. It is not commonly needed in normal application development.
 
-    print("Many-to-Many action:", action)
-```
+**Important:** `class_prepared` is sent while Django is populating the application registry. `AppConfig.ready()` runs after the registry is populated, so registering a `class_prepared` receiver inside `ready()` is too late for model classes prepared earlier.
 
-This example assumes that `Student` has a Many-to-Many field named `courses`.
+### 10.3 Request/response signals
 
-#### H. `class_prepared`
+**Module:** `django.core.signals`
 
-Sent when a model class has been prepared and registered with Django's model system.
+These signals are sent by Django's core request-handling system.
 
-Argument:
-
-| Argument | Meaning |
-|---|---|
-| `sender` | The model class that was just prepared. |
-
-Django uses this signal internally. It is not generally needed in ordinary application development.
-
----
-
-### 9.3 Request/Response Signals
-
-These signals are sent by Django's core framework while processing HTTP requests.
-
-Import them from:
-
-```python
-from django.core.signals import (
-    request_started,
-    request_finished,
-    got_request_exception
-)
-```
-
-#### A. `request_started`
+#### 1. `request_started`
 
 Sent when Django begins processing an HTTP request.
 
 Arguments:
 
-| Argument | Meaning |
-|---|---|
-| `sender` | The handler class processing the request. |
-| `environ` | The WSGI environment dictionary, when applicable. |
+- `sender`: The handler class that handled the request, such as a WSGI or ASGI handler.
+- `environ`: The WSGI environment dictionary. This argument is associated with the WSGI request handler; do not assume it is present for every request-handling path.
 
-#### B. `request_finished`
+#### 2. `request_finished`
 
 Sent when Django finishes delivering an HTTP response.
 
 Argument:
 
-| Argument | Meaning |
-|---|---|
-| `sender` | The handler class. |
+- `sender`: The handler class that handled the request.
 
-#### C. `got_request_exception`
+Example use case: Perform a lightweight action after request processing has finished.
+
+#### 3. `got_request_exception`
 
 Sent when Django encounters an exception while processing an incoming HTTP request.
 
 Arguments:
 
-| Argument | Meaning |
-|---|---|
-| `sender` | Unused; normally `None`. |
-| `request` | The current request object. |
+- `sender`: The sender is documented as unused and is generally `None`.
+- `request`: The current `HttpRequest` instance.
 
-**Correction:** The `request` argument is an `HttpRequest` object, not an `HttpResponse` object.
+Example use case: Send an exception event to a monitoring or logging system.
 
----
+**Note:** For request/response-wide behavior, middleware is often a clearer choice than request signals.
 
-### 9.4 Management Signals
+### 10.4 Management signals
 
-Management signals are sent by Django's management commands, such as the `migrate` command.
+**Module:** `django.db.models.signals`
 
-Import them from:
+Management signals are sent by Django management commands, particularly migration-related commands.
 
-```python
-from django.core.signals import pre_migrate, post_migrate
-```
+#### 1. `pre_migrate`
 
-#### A. `pre_migrate`
+Sent by the `migrate` command before it starts applying migrations for an application.
 
-Sent before Django starts applying migrations for an application.
+It is not sent for applications that do not have a `models` module.
 
 Arguments:
 
-| Argument | Meaning |
-|---|---|
-| `sender` | The `AppConfig` instance for the application being migrated. |
-| `app_config` | The same application configuration instance. |
-| `verbosity` | Controls how much information the command displays. |
-| `interactive` | Indicates whether command-line interaction is allowed. |
-| `using` | Database alias being used. |
-| `plan` | Migration plan for the operation. |
-| `apps` | Historical app registry for the migration operation. |
+- `sender`: The `AppConfig` instance for the application about to be migrated.
+- `app_config`: The same `AppConfig` instance as `sender`.
+- `verbosity`: The verbosity level passed to the management command.
+- `interactive`: Indicates whether the command may prompt for user input.
+- `using`: The database alias on which the command operates.
+- `plan`: The migration plan for the migration run.
+- `apps`: The historical app registry representing the project state before the migration run.
 
-Important points:
+**Important:** When working with models in migration signal handlers, use the supplied historical `apps` registry rather than importing current model classes. This helps ensure that the models match the migration state.
 
-- If `interactive=True`, it is safe for receivers to prompt for user input.
-- If `interactive=False`, receivers should not prompt for input.
-- Use the supplied historical `apps` registry when retrieving models for migration-related operations.
+#### 2. `post_migrate`
 
-#### B. `post_migrate`
+Sent at the end of the `migrate` command, even if no migrations were run. It is also sent at the end of the `flush` command.
 
-Sent at the end of the `migrate` command, even if no migrations were applied.
-
-It is also sent at the end of the `flush` command.
+It is not sent for applications that do not have a `models` module.
 
 Arguments:
 
-| Argument | Meaning |
-|---|---|
-| `sender` | The `AppConfig` instance for the application. |
-| `app_config` | The application configuration instance. |
-| `verbosity` | Controls output detail. |
-| `interactive` | Indicates whether interactive input is allowed. |
-| `using` | Database alias being used. |
-| `plan` | Migration plan used for the operation. |
-| `apps` | Historical app registry after migration. |
+- `sender`: The `AppConfig` instance for the application that was just migrated.
+- `app_config`: The same `AppConfig` instance as `sender`.
+- `verbosity`: The verbosity level passed to the command.
+- `interactive`: Indicates whether the command may prompt for user input.
+- `using`: The database alias used for synchronization.
+- `plan`: The migration plan used for the migration run.
+- `apps`: The historical app registry representing the project state after the migration run.
 
-**Important:** A `post_migrate` receiver must not perform database schema alterations. Doing so can cause problems, particularly when the signal is sent during `flush`.
+**Important:** A `post_migrate` receiver must not perform database schema alterations. Doing so can cause problems, especially when the signal is sent during the `flush` command.
 
----
+Example use case: Create or update initial database data after migrations, when appropriate.
 
-### 9.5 Database Signals
+### 10.5 Test signals
 
-Django provides database signals that notify us about database connection events.
+**Module:** `django.test.signals`
 
-Import them from:
+#### `template_rendered`
 
-```python
-from django.db.backends.signals import connection_created
-```
+Sent when Django's test system renders a template.
+
+Arguments:
+
+- `sender`: The `Template` object that was rendered.
+- `template`: The rendered template (the same template object as `sender`).
+- `context`: The context used to render the template.
+
+**Note:** This signal is intended for Django's testing tools. It is not emitted during normal production request handling.
+
+Example use case: Inspect which template was rendered and which context was supplied during a test.
+
+### 10.6 Database connection signals
+
+**Module:** `django.db.backends.signals`
 
 #### `connection_created`
 
-Sent when Django's database wrapper creates a new database connection.
+Sent when a database wrapper creates a new database connection.
 
 Arguments:
 
-| Argument | Meaning |
-|---|---|
-| `sender` | The database wrapper class. |
-| `connection` | The database connection that was opened. |
+- `sender`: The database wrapper class, such as a PostgreSQL or MySQL database wrapper.
+- `connection`: The database connection that was opened.
 
-It is useful when we need to perform additional setup immediately after a database connection is created.
+Example use case: Run a database-specific setup command after a new connection is opened.
 
-Example:
+This signal can be useful in projects that use multiple databases because the `connection` object identifies the connection involved.
 
-```python
-from django.db.backends.signals import connection_created
-from django.dispatch import receiver
+## 11. Custom Signals
 
+Django allows us to create our own signals and send them when a specific event occurs in our application.
 
-@receiver(connection_created)
-def database_connected(sender, connection, **kwargs):
-
-    print("Database connection created:", connection.alias)
-```
-
-In a multiple-database configuration, `connection.alias` helps identify which database connection was created.
-
----
-
-### 9.6 Test Signals
-
-Django also provides signals related to the test framework.
-
-One example is:
-
-`setting_changed`
-
-It is sent when a setting changes through Django's test utilities, such as `override_settings()`.
-
-Import:
-
-```python
-from django.test.signals import setting_changed
-```
-
-It can be useful when test code needs to respond to changes in Django settings.
-
----
-
-## 10. Custom Signals
-
-Apart from Django's built-in signals, we can define our own signals.
-
-Custom signals are useful when we want to notify other parts of our application that a particular business event has happened.
-
-For example:
-
-- An order has been placed.
-- A payment has been completed.
-- A report has been generated.
-- A customer has been approved.
+For example, suppose an order is marked as ready. We want another part of the application to be notified.
 
 ### Step 1: Define a custom signal
 
-`signals.py`
+Create `signals.py` (or another suitable module) and define the signal:
 
 ```python
 import django.dispatch
 
-
-order_placed = django.dispatch.Signal()
+order_ready = django.dispatch.Signal()
 ```
 
-### Step 2: Connect a receiver
+### Step 2: Create a receiver
 
 ```python
 from django.dispatch import receiver
 
-from .signals import order_placed
-
-
-@receiver(order_placed)
-def order_notification(sender, order, **kwargs):
-
-    print("New order received:", order)
+@receiver(order_ready)
+def notify_order_ready(sender, order_id, **kwargs):
+    print(f"Order {order_id} is ready!")
 ```
 
 ### Step 3: Send the signal
 
-From the business logic that completes an order:
+From the code that marks the order as ready:
 
 ```python
-from .signals import order_placed
+from .signals import order_ready
 
-
-order_placed.send(
+order_ready.send(
     sender=Order,
-    order=order
+    order_id=101,
 )
 ```
 
-The receiver function will be called when the signal is sent.
+When `order_ready.send()` runs, Django calls the registered receiver and passes `sender` and `order_id` to it.
 
-**Important:** The sender and keyword arguments supplied when sending a custom signal must match what the receiver expects.
+**Important:** This is a simplified example. In a real application, keep the custom signal definition in a module that can be imported by both the sender and receiver, and register the receiver during application initialization. Avoid circular imports.
 
-For new code, custom signal definitions can also declare expected keyword argument names using `Signal(providing_args=...)` only in older Django versions. That parameter was removed in modern Django versions, so do not use it.
+### `send()` and `send_robust()`
 
----
+Django provides two common synchronous ways to send a signal:
 
-## 11. Important Points About Django Signals
+- `send(sender, **kwargs)`: Calls the receivers. If a receiver raises an exception, that exception propagates and may prevent later receivers from being called.
+- `send_robust(sender, **kwargs)`: Catches exceptions derived from `Exception`, continues notifying receivers, and returns the exception alongside the receiver's result.
 
-1. Signals allow different parts of an application to communicate through events.
-2. A signal announces that an event has happened.
-3. A sender generates the signal.
-4. A receiver responds to the signal.
-5. Receiver functions can be connected using `signal.connect()` or the `@receiver` decorator.
-6. `signals.py` is a conventional place to define receiver functions, but Django does not require this filename.
-7. Use `AppConfig.ready()` to import the signals module and register receivers.
-8. Register the AppConfig class path in `INSTALLED_APPS`.
-9. Use `dispatch_uid` when duplicate receiver registration is a concern.
-10. Avoid placing slow operations such as sending emails directly inside a receiver when they can delay the request. Consider a background task system.
-11. Avoid creating circular imports between models and signals. Import models carefully, and use `apps.get_model()` when appropriate.
-12. Signals are not automatically sent by every possible database operation. For example, `QuerySet.update()` does not call each object's `save()` method and does not emit `pre_save` or `post_save` signals for each updated object.
+For most simple examples, `send()` is sufficient. Choose `send_robust()` only when its error-handling behavior is appropriate for the use case.
 
----
+## 12. Preventing duplicate signal execution
 
-## 12. Common Mistakes
+Sometimes a receiver may be registered more than once, especially if registration code runs repeatedly in tests or with recreated bound-method instances.
 
-### Mistake 1: Forgetting to import signals
-
-Creating `signals.py` alone does not register the receivers.
-
-Correct approach:
+For manual connection, use a stable `dispatch_uid`:
 
 ```python
-class CustomerAppConfig(AppConfig):
+from django.db.models.signals import post_save
 
-    name = 'customer_app'
-
-    def ready(self):
-
-        from . import signals
+post_save.connect(
+    customer_saved,
+    sender=Customer,
+    dispatch_uid="customer_saved_receiver",
+)
 ```
 
-### Mistake 2: Creating duplicate profiles
+Django uses this identifier to avoid registering the same receiver more than once for that sender and signal.
 
-Incorrect:
+For ordinary module-level receiver functions, importing the same module normally does not create a new function object each time. However, be careful with bound methods and repeated initialization.
 
-```python
-@receiver(post_save, sender=Customer)
-def create_profile(sender, instance, **kwargs):
+## 13. Important points and best practices
 
-    CustomerProfile.objects.create(customer=instance)
-```
+1. Put signal handlers in a dedicated `signals.py` module in the relevant app.
+2. Import that module from the app configuration's `ready()` method.
+3. Register the correct `AppConfig` class in `INSTALLED_APPS`.
+4. Use `sender=YourModel` when the receiver should listen to one particular model.
+5. Accept `sender` and `**kwargs` in receiver functions.
+6. Use `created` in `post_save` when a task should happen only for newly created records.
+7. Avoid slow work inside receivers because signal handlers run as part of signal dispatch. Consider a background task queue for long-running work.
+8. Be careful when a receiver saves the same model that triggered it. This can cause the signal to run again and may create recursion.
+9. Do not assume signals are sent for every possible database change. For example, `QuerySet.update()` does not call each model's `save()` method and does not send `pre_save` or `post_save`.
+10. `QuerySet.delete()` does send `pre_delete` and `post_delete` for each deleted object, even though it does not call each model instance's `delete()` method.
+11. Avoid unnecessary database queries in `pre_init` and `post_init`.
+12. Be careful with fixture loading (`raw=True`) and do not query or modify related records from save receivers while fixtures are being loaded.
+13. Signals are synchronous by default in the common `send()` path. A slow receiver can make the operation that sent the signal slower.
+14. Use `transaction.on_commit()` when a follow-up action, such as sending a task to an external system, must happen only after the database transaction commits.
+15. Do not use signals for every operation. If the sender and the follow-up operation are part of the same business workflow and are easy to call directly, an explicit function or service is often easier to understand and debug.
 
-This creates a profile every time the customer is saved, including updates.
+## 14. When should we use Django Signals?
 
-Correct:
+Good situations include:
 
-```python
-@receiver(post_save, sender=Customer)
-def create_profile(sender, instance, created, **kwargs):
+- Creating a related profile after a user or customer is created.
+- Recording audit or activity information after a model event.
+- Responding to login and logout events.
+- Updating a separate system when an event occurs, using an appropriate reliable integration approach.
+- Allowing independent parts of an application to react to the same event.
 
-    if created:
+Avoid signals when:
 
-        CustomerProfile.objects.create(customer=instance)
-```
+- The code is part of one simple workflow and a direct function call is clearer.
+- The receiver contains large amounts of business logic.
+- Hidden side effects would make the application difficult to understand or debug.
+- A task is slow and should instead run in a background worker.
 
-### Mistake 3: Using signals for every operation
+## 15. Quick revision
 
-Signals can make the flow of an application harder to understand when too much business logic is hidden inside receivers.
-
-Use signals for suitable event-driven side effects, not as a replacement for all normal function calls.
-
-### Mistake 4: Assuming `post_save` runs for `QuerySet.update()`
-
-Example:
-
-```python
-Customer.objects.filter(id=1).update(name="Shiv Updated")
-```
-
-This performs a direct database update. It does not call the model's `save()` method and does not emit `pre_save` or `post_save`.
-
-### Mistake 5: Assuming signals are asynchronous
-
-Signals normally execute synchronously in the same process.
-
-If a receiver sends an email or performs a slow API call, the operation can delay the request that triggered the signal.
-
-Use a background task queue when asynchronous execution is required.
-
----
-
-## 13. Middleware vs Signals
-
-Both middleware and signals allow us to execute additional logic, but they solve different problems.
-
-| Middleware | Signals |
+| Question | Answer |
 |---|---|
-| Works with Django's request/response processing | Works with events occurring in Django |
-| Commonly used for request-wide processing | Used to notify receivers about specific events |
-| Registered in `settings.py` | Receivers registered through signal connections |
-| Example: log every incoming request | Example: create a profile after customer creation |
-| Has request/response hooks | Has senders and receivers |
-
-### Simple difference
-
-- **Middleware:** Execute code around HTTP request/response processing.
-- **Signals:** Execute code when a particular event happens.
-
----
-
-## 14. Quick Revision
-
-| Signal | When does it execute? |
-|---|---|
-| `pre_init` | Before a model instance is initialized. |
-| `post_init` | After a model instance is initialized. |
-| `pre_save` | Before a model is saved. |
-| `post_save` | After a model is saved. |
-| `pre_delete` | Before a model is deleted. |
-| `post_delete` | After a model is deleted. |
-| `m2m_changed` | When a Many-to-Many relationship changes. |
-| `user_logged_in` | When a user logs in successfully. |
-| `user_logged_out` | When a user logs out. |
-| `user_login_failed` | When authentication fails. |
-| `request_started` | When Django starts processing a request. |
-| `request_finished` | When Django finishes delivering a response. |
-| `got_request_exception` | When Django encounters a request-processing exception. |
-| `pre_migrate` | Before migration operations. |
-| `post_migrate` | After migration operations. |
-| `connection_created` | When a database connection is created. |
-| `setting_changed` | When a setting changes through the test utilities. |
-
-### Most important concepts
-
-- Signal = Event notification.
-- Sender = Event generator.
-- Receiver = Function that responds.
-- `post_save` = Runs after saving a model.
-- `pre_save` = Runs before saving a model.
-- `@receiver()` = Decorator used to connect a receiver.
-- `connect()` = Method used to connect a receiver manually.
-- `ready()` = Used to import and register receivers when Django initializes an application.
-- `created` = Indicates whether the saved record is new.
-- `instance` = The actual model object involved in the event.
-
----
-
-## 15. Practice Questions
-
-Try answering these questions to check your understanding.
-
-1. What are Django Signals?
-2. Why do we need signals?
-3. What are the three important terms in Django Signals?
-4. What is the difference between `pre_save` and `post_save`?
-5. What is the purpose of the `created` argument?
-6. What is the difference between `connect()` and `@receiver()`?
-7. Why do we create a `signals.py` file?
-8. What is the purpose of `AppConfig.ready()`?
-9. What is the difference between `user_logged_in` and `user_login_failed`?
-10. What is the purpose of `m2m_changed`?
-11. What is the purpose of `connection_created`?
-12. Do signals execute asynchronously by default?
-13. Does `QuerySet.update()` trigger `post_save`?
-14. What is the difference between middleware and signals?
-
-### Practical task
-
-Create a Customer Management System using Django Signals.
-
-Requirements:
-
-1. Create a `Customer` model.
-2. Create a `CustomerProfile` model with a `OneToOneField` relationship.
-3. Create a `post_save` receiver for the `Customer` model.
-4. Automatically create a customer profile when a new customer is registered.
-5. Do not create another profile when an existing customer is updated.
-6. Test the signal using Django shell.
-
-This practical task will help you understand how Django Signals work in a real-world application.
+| What is a Django Signal? | A mechanism for notifying receivers when an event occurs. |
+| What is a sender? | The object or model class that sends a signal. |
+| What is a receiver? | The function or method that responds to a signal. |
+| What does `pre_save` do? | Runs before a model's `save()` method completes its save operation. |
+| What does `post_save` do? | Runs after a model's `save()` method completes. |
+| What does `created` mean? | For `post_save`, it indicates whether a new record was created. |
+| Where should signal handlers usually be written? | In the app's `signals.py` module. |
+| Where should the signal module be imported? | In the app configuration's `ready()` method. |
+| How can we connect a receiver? | With `Signal.connect()` or the `@receiver` decorator. |
+| What does `dispatch_uid` do? | Helps prevent duplicate receiver registrations. |
+| Can we create our own signals? | Yes, using `django.dispatch.Signal`. |
+| Should every task use signals? | No. Prefer direct function calls when they make the workflow clearer. |
