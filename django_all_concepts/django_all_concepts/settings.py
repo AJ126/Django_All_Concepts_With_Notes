@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
 from pathlib import Path
+from xml.parsers import expat
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -32,6 +33,9 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'jazzmin',
+    # CAPTCHA
+    'captcha',
+    'multi_captcha_admin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -155,3 +159,8 @@ LOGIN_REDIRECT_URL='/'
 
 # redirect to home scrren after logout
 LOGOUT_REDIRECT_URL='/'
+
+# admin Captcha settings
+MULTI_CAPTCHA_ADMIN = {
+    'engine': 'simple-captcha',
+}

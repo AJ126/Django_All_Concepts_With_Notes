@@ -22,6 +22,7 @@ from home import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('captcha/', include('captcha.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
     path('', views.home, name='home'),
     path('firstapp/', include('app_001_first.urls')),
