@@ -1,66 +1,151 @@
 <!DOCTYPE html>
-{% load static%}
-<html>
+{% load static %}
+<html lang="en">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Django All Concepts</title>
-        <link href="{%static 'css/bootstrap.css'%}" rel="stylesheet">
-        <link href="{%static 'css/base.css'%}" rel="stylesheet">
-        {% block style%}
-        {% endblock style%} 
+        <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
+        <link href="{% static 'css/base.css' %}" rel="stylesheet">
+        {% block style %}
+        {% endblock style %}
     </head>
     <body>
-        <nav class="navbar navbar-expand-lg fixed-top bg-body-tertiary navbar bg-secondary" data-bs-theme="dark">
+        <nav class="navbar navbar-expand-lg sticky-top navbar-dark bg-secondary">
             <div class="container-fluid">
-                <a class="navbar-brand" href="#">Django concepts</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <a class="navbar-brand" href="{% url 'home' %}">Django concepts</a>
+                <button class="navbar-toggler" type="button" data-nav-toggle="collapse"
+                        data-nav-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <ul class="navbar-nav mr-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="{%url 'home'%}">Home</a>
+                            <a class="nav-link" href="{% url 'home' %}">Home</a>
                         </li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                First App
-                            </a>
+                            <a class="nav-link dropdown-toggle" href="#" data-nav-toggle="dropdown"
+                               aria-expanded="false">First App</a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{%url 'first'%}">Simple</a></li>
-                                <li><a class="dropdown-item" href="{%url 'showdatetime'%}">Current date & time</a></li>
+                                <li><a class="dropdown-item" href="/firstapp/first">Simple</a></li>
+                                <li><a class="dropdown-item" href="/firstapp/showdatetime">Current date &amp; time</a></li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Template
-                            </a>
+                            <a class="nav-link dropdown-toggle" href="#" data-nav-toggle="dropdown"
+                               aria-expanded="false">Template</a>
                             <ul class="dropdown-menu">
-                                <li class="dropdown-item"><b>Simple Template</b></li><hr>
-                                <li><a class="dropdown-item" href="{%url 'firsttemplate'%}">Simple template</a></li>
-                                <li><a class="dropdown-item" href="{%url 'dynamictemplate'%}">Dynamic data</a></li>
-                                <li><a class="dropdown-item" href="{%url 'showing'%}">Image template</a></li><br>
-                                <li class="dropdown-item"><b>Advance Template App</b></li><hr>
+                                <li class="dropdown-item"><b>Template</b></li>
+                                <li><a class="dropdown-item" href="/templateapp/firsttemplate">Simple template</a></li>
+                                <li><a class="dropdown-item" href="/templateapp/dynamictemplate">Dynamic data</a></li>
+                                <li><a class="dropdown-item" href="/templateapp/showing">Image template</a></li>
+                                <hr><li class="dropdown-item"><b>Advance Template</b></li>
+                                <li><a class="dropdown-item" href="/advtemplateapp/showtemplate">Template filters</a></li>
+                                <li><a class="dropdown-item" href="/advtemplateapp/showcustomtemplate">Custom template tags</a></li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Model
-                            </a>
+                            <a class="nav-link dropdown-toggle" href="#" data-nav-toggle="dropdown"
+                               aria-expanded="false">Model</a>
                             <ul class="dropdown-menu">
-                                <li class="dropdown-item"><b>Simple Model</b></li><hr>
-                                <li><a class="dropdown-item" href="{%url 'showData'%}">Get Model Data</a></li><br>
-                                <li class="dropdown-item"><b>Advance Model</b></li><hr>
+                                <li class="dropdown-item"><b>Model</b></li>
+                                <li><a class="dropdown-item" href="/modelapp/showData">Get model data</a></li>
+                                <hr><li class="dropdown-item"><b>Advance Model</b></li>
+                                <li><a class="dropdown-item" href="/advmodelapp/showbooks">all books</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" data-nav-toggle="dropdown"
+                               aria-expanded="false">Forms</a>
+                            <ul class="dropdown-menu">
+                                <li class="dropdown-item"><b>Forms</b></li>
+                                <li><a class="dropdown-item" href="/formapp/form">Form</a></li>
+                                <li><a class="dropdown-item" href="/formapp/validationform">Validation form</a></li>
+                                <li><a class="dropdown-item" href="/formapp/cleanForm">Clean form</a></li>
+                                <hr><li class="dropdown-item"><b>Model Forms</b></li>
+                                <li><a class="dropdown-item" href="/modelformapp/formmodel">Save model form</a></li>
+                                <li><a class="dropdown-item" href="/modelformapp/widgetform">Widget form</a></li>
+                                <li><a class="dropdown-item" href="/modelformapp/dateform">Date form</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" data-nav-toggle="dropdown"
+                               aria-expanded="false">Class-based Views</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="/classApp/classBasedView/">Simple class view</a></li>
+                                <li><a class="dropdown-item" href="/classApp/templateview/">Template view</a></li>
+                                <li><a class="dropdown-item" href="/classApp/createview/">Create record</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" data-nav-toggle="dropdown"
+                               aria-expanded="false">CRUD</a>
+                            <ul class="dropdown-menu">
+                                <li class="dropdown-item"><b>Function-based CRUD</b></li>
+                                <li><a class="dropdown-item" href="/functioncardApp/showcustomers">List customers</a></li>
+                                <hr><li class="dropdown-item"><b>Class-based CRUD</b></li>
+                                <li><a class="dropdown-item" href="/classApp/listview/">List records</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" data-nav-toggle="dropdown"
+                               aria-expanded="false">Other Points</a>
+                            <ul class="dropdown-menu">
+                                <li class="dropdown-item"><b>ORM</b></li>
+                                <li><a class="dropdown-item" href="/ormApp/ormdata">ORM data</a></li>
+                                <hr><li class="dropdown-item"><b>Signals</b></li>
+                                <li><a class="dropdown-item" href="/sigalapp/createcustomer">Create customer</a></li>
+                                <hr><li class="dropdown-item"><b>Media</b></li>
+                                <li><a class="dropdown-item" href="/mediaapp/uploadimage">Upload image</a></li>
+                                <li><a class="dropdown-item" href="/mediaapp/uploadimg">Upload image (form)</a></li>
+                                <hr><li class="dropdown-item"><b>Session</b></li>
+                                <li><a class="dropdown-item" href="/sessionapp/setcookie">Set cookie</a></li>
+                                <li><a class="dropdown-item" href="/sessionapp/checkcookie">Check cookie</a></li>
+                                <li><a class="dropdown-item" href="/sessionapp/countpageload">Count page load</a></li>
+                                <li><a class="dropdown-item" href="/sessionapp/cookieform">Cookie form</a></li>
+                                <li><a class="dropdown-item" href="/sessionapp/nameview">Name view</a></li>
+                                <li><a class="dropdown-item" href="/sessionapp/pagecount">Page count</a></li>
                             </ul>
                         </li>
                     </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" data-nav-toggle="dropdown"
+                               aria-expanded="false">Auth App</a>
+                            <ul class="dropdown-menu">
+                                {% if user.is_authenticated %}
+                                    <li><a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Default registration</a></li>
+                                    <li><a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Login</a></li>
+                                    <li><a class="dropdown-item disabled" href="#" tabindex="-1" aria-disabled="true">Register</a></li>
+                                {% else %}
+                                    <li><a class="dropdown-item" href="/authapp/registerdefault">Default registration</a></li>
+                                    <li><a class="dropdown-item" href="/authapp/login">Login</a></li>
+                                    <li><a class="dropdown-item" href="/authapp/register">Register</a></li>
+                                {% endif %}
+                                <li><a class="dropdown-item" href="/authapp/loginrequired">Login-required page</a></li>
+                                <li><a class="dropdown-item" href="/admin/">Admin</a></li>
+                            </ul>
+                        </li>
+                        {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <button type="button" class="btn btn-light" style="border-radius: 21px;">
+                                {{user.first_name|slice:":1"}}
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/authapp/logout">Logout</a>
+                        </li>
+                        {% endif %}
+                    </ul>
                 </div>
             </div>
-        </nav><br><br>
-        <div class="container mt-3">
+        </nav>
+        <div class="container mt-3 page-content">
             {% block body %}
-            {% endblock body%}
+            {% endblock body %}
         </div>
-        <script src="{%static 'bootstrap.js'%}"></script>
+        <script src="{% static 'navbar.js' %}"></script>
     </body>
 </html>

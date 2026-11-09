@@ -17,3 +17,17 @@ body
 a, a:hover{
     color: white;
 }
+
+.navbar .dropdown-menu .dropdown-item,
+.navbar .dropdown-menu .dropdown-item-text {
+    color: #212529;
+}
+
+.navbar .dropdown-menu .dropdown-item:hover,
+.navbar .dropdown-menu .dropdown-item:focus {
+    color: #16181b;
+}
+
+.navbar-expand-lg .navbar-nav {
+    flex-wrap: wrap;
+}
